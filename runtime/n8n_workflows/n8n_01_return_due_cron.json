@@ -1,0 +1,89 @@
+{
+  "name": "vat.law · 01 · VAT return due alerts cron",
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 7 * * *" }] } },
+      "name": "Daily 07:00 UK",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/vat_returns?select=*,vat_customers(*)&status=in.(open,due,draft)&due_date=not.is.null",
+        "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$env.SUPABASE_SERVICE_ROLE_KEY}}" }] }
+      },
+      "name": "Fetch open VAT returns",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const today = new Date();\nconst out = [];\nconst WINDOWS = [\n  { days: 90, alert_type: 'return_due_90d', qa_priority: 'low' },\n  { days: 60, alert_type: 'return_due_60d', qa_priority: 'low' },\n  { days: 30, alert_type: 'return_due_30d', qa_priority: 'normal' },\n  { days: 7,  alert_type: 'return_due_7d',  qa_priority: 'high' }\n];\nfor (const r of items.map(i => i.json)) {\n  if (!r.due_date) continue;\n  const due = new Date(r.due_date);\n  const diffDays = Math.floor((due - today) / (1000*60*60*24));\n  for (const w of WINDOWS) {\n    if (diffDays === w.days) {\n      out.push({ json: {\n        customer_id: r.customer_id,\n        return_id: r.id,\n        alert_type: w.alert_type,\n        qa_priority: w.qa_priority,\n        trigger_date: today.toISOString().slice(0,10),\n        customer_email: r.vat_customers && r.vat_customers.contact_email,\n        customer_legal_name: r.vat_customers && r.vat_customers.legal_name,\n        customer_vrn: r.vat_customers && r.vat_customers.vat_number,\n        payload: { days_to_due: w.days, due_date: r.due_date, period_label: r.period_label, stagger: r.stagger, mtd_status: r.mtd_status }\n      } });\n    }\n  }\n}\nreturn out;"
+      },
+      "name": "Compute due alerts (90/60/30/7)",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/vat_alerts?on_conflict=customer_id,alert_type,trigger_date",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { customer_id: $json.customer_id, return_id: $json.return_id, alert_type: $json.alert_type, trigger_date: $json.trigger_date, payload: $json.payload } }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}" },
+            { "name": "Authorization", "value": "=Bearer {{$env.SUPABASE_SERVICE_ROLE_KEY}}" },
+            { "name": "Prefer", "value": "resolution=ignore-duplicates" }
+          ]
+        }
+      },
+      "name": "Upsert alert (dedup on unique customer+alert_type+date)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.INDIA_QA_QUEUE_WEBHOOK}}",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { queue: 'vat_return_prep', priority: $json.qa_priority, sla_hours: $json.payload.days_to_due <= 7 ? 4 : 24, context: $json } }}",
+        "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "Authorization", "value": "=Bearer {{$env.INDIA_QA_QUEUE_API_KEY}}" }] }
+      },
+      "name": "Route to India QA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.resend.com/emails",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { from: $env.RESEND_FROM_EMAIL, to: $json.customer_email, subject: 'VAT return for ' + $json.customer_legal_name + ' (VRN ' + $json.customer_vrn + ') due in ' + $json.payload.days_to_due + ' days', html: '<p>Your VAT return for the period <strong>' + $json.payload.period_label + '</strong> is due on <strong>' + $json.payload.due_date + '</strong>.</p><p>vat.law has begun preparing the return. The India QA queue is reviewing source ledgers; any regulated method-design question will be routed to your CTA partner adviser. Log into the dashboard to review the draft.</p><p>Late filing under the points-based penalty regime (live January 2023) accrues a point on each late submission. Late payment from April 2025 attracts LPP1 (3% on day 15 + 3% on day 30) and LPP2 (10% per annum from day 31).</p>' } }}",
+        "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "Authorization", "value": "=Bearer {{$env.RESEND_API_KEY}}" }] }
+      },
+      "name": "Send customer due-date email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1340, 300]
+    }
+  ],
+  "connections": {
+    "Daily 07:00 UK": { "main": [[{ "node": "Fetch open VAT returns", "type": "main", "index": 0 }]] },
+    "Fetch open VAT returns": { "main": [[{ "node": "Compute due alerts (90/60/30/7)", "type": "main", "index": 0 }]] },
+    "Compute due alerts (90/60/30/7)": { "main": [[{ "node": "Upsert alert (dedup on unique customer+alert_type+date)", "type": "main", "index": 0 }]] },
+    "Upsert alert (dedup on unique customer+alert_type+date)": { "main": [[{ "node": "Route to India QA", "type": "main", "index": 0 }]] },
+    "Route to India QA": { "main": [[{ "node": "Send customer due-date email", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": ["vat_law", "cron", "active_on_import", "return_due"]
+}

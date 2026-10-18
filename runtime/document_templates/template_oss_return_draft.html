@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>OSS Quarterly Return Draft — {{customer_legal_name}}</title>
+<style>
+  @page { size: A4; margin: 20mm 18mm; }
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1f2937; font-size: 10.5pt; line-height: 1.55; }
+  .header { display: flex; justify-content: space-between; padding-bottom: 14px; border-bottom: 2px solid #4338ca; margin-bottom: 20px; }
+  .logo { font-weight: 900; color: #4338ca; font-size: 17pt; letter-spacing: -0.01em; }
+  .doc-ref { font-size: 9pt; color: #6b7280; text-align: right; }
+  h1 { font-size: 20pt; margin: 0 0 4px 0; color: #312e81; }
+  .subtitle { font-size: 10pt; color: #6b7280; margin-bottom: 22px; }
+  h2 { font-size: 12pt; margin: 22px 0 10px 0; color: #4338ca; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 4px; border-bottom: 1px solid #a5b4fc; }
+  h3 { font-size: 11pt; margin: 14px 0 6px 0; color: #312e81; }
+  p { margin: 0 0 10px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 9.5pt; }
+  th, td { border: 1px solid #a5b4fc; padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: #eef2ff; color: #312e81; font-weight: 600; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .statutory-box { background: #eef2ff; border: 2px solid #4338ca; padding: 12px 16px; border-radius: 8px; margin-bottom: 18px; font-size: 10pt; color: #312e81; }
+  .caveat-box { background: #fef3c7; border: 1px solid #fbbf24; padding: 12px 16px; border-radius: 8px; margin: 14px 0; font-size: 10pt; color: #78350f; }
+  .flag { display: inline-block; background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 4px; font-size: 9pt; font-weight: 600; }
+  .ok { display: inline-block; background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 4px; font-size: 9pt; font-weight: 600; }
+  .qa-stamp { display: inline-block; background: #eef2ff; border: 1.5px dashed #4338ca; padding: 6px 12px; border-radius: 6px; font-size: 9.5pt; color: #312e81; margin: 10px 0; }
+  .signature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 28px; padding-top: 16px; border-top: 1px solid #a5b4fc; }
+  .sig-block { font-size: 9.5pt; }
+  .sig-line { border-top: 1px solid #1f2937; margin-top: 34px; padding-top: 4px; font-size: 9pt; color: #6b7280; }
+  .footer { margin-top: 28px; padding-top: 12px; border-top: 1px solid #a5b4fc; font-size: 8.5pt; color: #6b7280; line-height: 1.5; }
+  .pagebreak { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">vat.law</div>
+  <div class="doc-ref">
+    Draft ref: OSS-{{draft_ref}}<br>
+    Quarter: {{period_label}}<br>
+    Filing deadline: {{filing_deadline}}
+  </div>
+</div>
+
+<h1>OSS Quarterly Return — Draft</h1>
+<div class="subtitle">{{customer_legal_name}} · One Stop Shop (Union Scheme) · Quarter {{period_label}}</div>
+
+<div class="statutory-box">
+  <strong>Statutory basis.</strong> The One Stop Shop (OSS) Union scheme allows a UK-established trader registered for OSS in an EU Member State of Identification to declare and pay VAT on intra-EU B2C distance sales of goods and B2C services through a single quarterly return. The return must be filed and paid by the end of the month following the quarter end. This draft is prepared by vat.law from the customer's sales ledger; the named CTA partner adviser is the regulated adviser of record and the customer's sign-off is mandatory before submission to the Member State of Identification's portal.
+</div>
+
+<h2>1. Customer registration</h2>
+<table>
+  <tr><th style="width:30%">Legal name</th><td>{{customer_legal_name}}</td></tr>
+  <tr><th>UK VAT number</th><td>{{customer_vat_number}}</td></tr>
+  <tr><th>EU OSS scheme</th><td>{{oss_scheme}} (Union / non-Union)</td></tr>
+  <tr><th>Member State of Identification</th><td>{{member_state_of_identification}}</td></tr>
+  <tr><th>OSS registration number</th><td>{{oss_registration_number}}</td></tr>
+  <tr><th>EORI (GB)</th><td>{{eori_gb}} {{#if eori_gb_valid}}<span class="ok">valid</span>{{else}}<span class="flag">check failed</span>{{/if}}</td></tr>
+  <tr><th>EORI (EU/XI if held)</th><td>{{eori_eu_xi}}</td></tr>
+  <tr><th>IOSS registration (if held)</th><td>{{ioss_registration_number}}</td></tr>
+</table>
+
+<h2>2. Country-by-country breakdown (Member State of Consumption)</h2>
+
+<table>
+  <tr>
+    <th>MS</th><th>Country</th><th>Standard rate %</th><th>Reduced rate %</th><th>Net taxable supplies — std (£)</th><th>Net taxable supplies — reduced (£)</th><th>VAT due std (£)</th><th>VAT due reduced (£)</th>
+  </tr>
+  {{#each country_rows}}
+  <tr>
+    <td>{{this.ms_code}}</td>
+    <td>{{this.country_name}}</td>
+    <td class="num">{{this.standard_rate}}%</td>
+    <td class="num">{{this.reduced_rate}}%</td>
+    <td class="num">{{this.net_supplies_std}}</td>
+    <td class="num">{{this.net_supplies_reduced}}</td>
+    <td class="num">{{this.vat_due_std}}</td>
+    <td class="num">{{this.vat_due_reduced}}</td>
+  </tr>
+  {{/each}}
+  <tr style="font-weight:700; background:#eef2ff;">
+    <td colspan="4">Totals</td>
+    <td class="num">{{totals.net_supplies_std}}</td>
+    <td class="num">{{totals.net_supplies_reduced}}</td>
+    <td class="num">{{totals.vat_due_std}}</td>
+    <td class="num">{{totals.vat_due_reduced}}</td>
+  </tr>
+</table>
+
+<p>Conversion to EUR uses the ECB reference rate on the last day of the quarter as required by Article 369u of the VAT Directive. Conversion rate applied: <strong>£1 = €{{eur_rate}}</strong> ({{eur_rate_date}}).</p>
+
+<h2>3. IOSS / £135 consignment threshold flags</h2>
+
+{{#if ioss_flags.length}}
+<table>
+  <tr><th>Issue</th><th>Country</th><th>Consignment value</th><th>Action</th></tr>
+  {{#each ioss_flags}}
+  <tr>
+    <td><span class="flag">{{this.issue}}</span></td>
+    <td>{{this.country}}</td>
+    <td class="num">{{this.value}}</td>
+    <td>{{this.action}}</td>
+  </tr>
+  {{/each}}
+</table>
+{{else}}
+<p><span class="ok">No IOSS threshold issues flagged.</span> All consignments at or below €150 have been routed through IOSS where the customer is IOSS-registered; consignments above €150 have been treated under the destination Member State's standard import VAT regime.</p>
+{{/if}}
+
+<h2>4. C79 / PIVA reconciliation (UK import VAT)</h2>
+
+<p>For goods returning to the UK or imported on the customer's UK EORI, import VAT is evidenced either through monthly C79 certificates (or postponed VAT accounting (PIVA) statements via the CDS dashboard). vat.law cross-checks the import VAT claimed in the UK return against the customs declarations to identify breaks.</p>
+
+<table>
+  <tr><th>Source</th><th>Value (£)</th><th>Status</th></tr>
+  <tr><td>C79 certificates received this quarter</td><td class="num">{{c79.received_value}}</td><td>{{c79.status}}</td></tr>
+  <tr><td>PIVA statements (CDS) for this quarter</td><td class="num">{{piva.value}}</td><td>{{piva.status}}</td></tr>
+  <tr><td>Import VAT claimed on UK VAT return (box 4)</td><td class="num">{{import_vat.box4_claimed}}</td><td>{{import_vat.recon_status}}</td></tr>
+  <tr><td>Reconciliation variance</td><td class="num">{{import_vat.variance}}</td><td>{{#if import_vat.variance_material}}<span class="flag">material — review</span>{{else}}<span class="ok">within tolerance</span>{{/if}}</td></tr>
+</table>
+
+<div class="pagebreak"></div>
+
+<h2>5. Corrections to prior OSS returns</h2>
+
+<p>Under Article 369d, corrections to earlier OSS returns may be made on a subsequent return within three years of the original return's due date. Corrections are reported on a country-by-country basis.</p>
+
+{{#if corrections.length}}
+<table>
+  <tr><th>Period being corrected</th><th>Country</th><th>Adjustment (£)</th><th>Reason</th></tr>
+  {{#each corrections}}
+  <tr>
+    <td>{{this.period}}</td>
+    <td>{{this.country}}</td>
+    <td class="num">{{this.adjustment}}</td>
+    <td>{{this.reason}}</td>
+  </tr>
+  {{/each}}
+</table>
+{{else}}
+<p>No corrections to prior returns in this draft.</p>
+{{/if}}
+
+<h2>6. EORI sanity checks</h2>
+
+<table>
+  <tr><th>Check</th><th>Result</th></tr>
+  <tr><td>GB EORI active on HMRC register</td><td>{{eori_checks.gb_active}}</td></tr>
+  <tr><td>GB EORI matches VRN root</td><td>{{eori_checks.gb_matches_vrn}}</td></tr>
+  <tr><td>XI EORI (NI movements) — required?</td><td>{{eori_checks.xi_required}}</td></tr>
+  <tr><td>XI EORI present where required</td><td>{{eori_checks.xi_present}}</td></tr>
+  <tr><td>Customs broker / agent on record</td><td>{{eori_checks.broker_on_record}}</td></tr>
+</table>
+
+<h2>7. Filing and payment summary</h2>
+
+<table>
+  <tr><th>Total VAT due (EUR)</th><td class="num">€{{filing.total_vat_due_eur}}</td></tr>
+  <tr><th>Member State of Identification portal</th><td>{{filing.msi_portal_url}}</td></tr>
+  <tr><th>Filing deadline</th><td>{{filing_deadline}}</td></tr>
+  <tr><th>Payment IBAN</th><td>{{filing.payment_iban}}</td></tr>
+  <tr><th>Payment reference</th><td>{{filing.payment_reference}}</td></tr>
+</table>
+
+<div class="caveat-box">
+  <strong>Late filing / late payment.</strong> The OSS scheme uses the Member State of Identification's domestic late-filing rules. Three consecutive missed returns or payments may result in exclusion from the OSS scheme for two years. The named CTA partner adviser will pursue any contentious exclusion or appeal.
+</div>
+
+<h2>8. trained QA reviewer pre-screen</h2>
+<div class="qa-stamp">
+  <strong>trained QA reviewer stamp.</strong> Reviewer: {{india_qa_reviewer_name}} · Reviewed: {{india_qa_reviewed_at}} · Stamp ref: {{india_qa_stamp_ref}}
+</div>
+<p>Country mapping, rate tables, ECB rate, and reconciliation arithmetic have been pre-screened by vat.law's trained QA review layer before this draft was generated.</p>
+
+<h2>9. CTA partner sign block (mandatory)</h2>
+<p>This OSS return draft requires CTA partner sign-off before it is submitted to the Member State of Identification's portal. <strong>{{cta_partner_firm_name}}</strong> (CIOT #{{cta_partner_ciot_number}}) is the regulated adviser of record.</p>
+
+<div class="signature-grid">
+  <div class="sig-block">
+    <strong>Authorised on behalf of {{customer_legal_name}}</strong>
+    <div class="sig-line">Director / Finance Lead signature</div>
+    <div class="sig-line">Printed name · role · date</div>
+  </div>
+  <div class="sig-block">
+    <strong>Reviewed by {{cta_partner_firm_name}}</strong>
+    <div class="sig-line">CTA partner signature</div>
+    <div class="sig-line">Printed name · CIOT number · date</div>
+  </div>
+</div>
+
+<div class="footer">
+  This OSS quarterly return draft is generated by vat.law (the technology platform) from the customer's EU B2C sales ledger and import records. vat.law is not a CTA / CIOT-regulated tax adviser and is not registered as a tax representative in any EU Member State. Regulated cross-border advice is referred to CTA partner firms. The customer is the registered taxable person on the OSS portal and is the responsible person for the return. Not legal or tax advice.
+</div>
+
+</body>
+</html>

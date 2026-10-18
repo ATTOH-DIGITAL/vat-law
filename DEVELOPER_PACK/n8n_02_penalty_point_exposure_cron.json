@@ -1,0 +1,92 @@
+{
+  "name": "vat.law · 02 · penalty points exposure cron (weekly)",
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 * * 1" }] } },
+      "name": "Weekly Monday 08:00 UK",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/vat_penalty_points?select=*,vat_customers(*)",
+        "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$env.SUPABASE_SERVICE_ROLE_KEY}}" }] }
+      },
+      "name": "Fetch penalty point ledger",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Points-based regime (live Jan 2023): threshold by stagger\n//   Annual stagger = 2 points · Quarterly = 4 · Monthly = 5\n// At threshold, £200 fixed penalty + £200 for each further default until clean record.\nconst THRESHOLDS = { annual: 2, quarterly: 4, monthly: 5 };\nconst out = [];\nconst byCustomer = {};\nfor (const row of items.map(i => i.json)) {\n  const key = row.customer_id;\n  if (!byCustomer[key]) byCustomer[key] = { rows: [], customer: row.vat_customers || {} };\n  byCustomer[key].rows.push(row);\n}\nconst now = new Date();\nconst TWO_YEARS_MS = 1000 * 60 * 60 * 24 * 365 * 2;\nfor (const [customer_id, bucket] of Object.entries(byCustomer)) {\n  const stagger = (bucket.customer.stagger || 'quarterly').toLowerCase();\n  const threshold = THRESHOLDS[stagger] || 4;\n  // Live points = points unexpired within rolling 24m window\n  const live = bucket.rows.filter(r => r.expires_at && (new Date(r.expires_at) > now)).length;\n  // Forecast: project next 24m late-filings using last 12m rate\n  const last12mLate = bucket.rows.filter(r => r.created_at && ((now - new Date(r.created_at)) < TWO_YEARS_MS / 2)).length;\n  const forecast_24m = live + last12mLate * 2;\n  let band = 'green';\n  if (live >= threshold) band = 'red';\n  else if (live === threshold - 1) band = 'red';\n  else if (live === threshold - 2) band = 'amber';\n  out.push({ json: {\n    customer_id,\n    customer_legal_name: bucket.customer.legal_name,\n    customer_email: bucket.customer.contact_email,\n    customer_vrn: bucket.customer.vat_number,\n    stagger,\n    threshold,\n    live_points: live,\n    forecast_24m,\n    band,\n    fixed_penalty_at_threshold_gbp: 200,\n    further_default_penalty_gbp: 200,\n    insurance_cross_sell_eligible: band === 'red'\n  } });\n}\nreturn out;"
+      },
+      "name": "Forecast 24m points exposure",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/vat_penalty_exposure_snapshot",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { customer_id: $json.customer_id, snapshot_date: $now.format('yyyy-MM-dd'), stagger: $json.stagger, live_points: $json.live_points, threshold: $json.threshold, forecast_24m: $json.forecast_24m, band: $json.band } }}",
+        "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$env.SUPABASE_SERVICE_ROLE_KEY}}" }] }
+      },
+      "name": "Snapshot row for dashboard",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [880, 300]
+    },
+    {
+      "parameters": {
+        "conditions": { "string": [{ "value1": "={{$json.band}}", "operation": "equal", "value2": "red" }] }
+      },
+      "name": "If band = red",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1100, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.INSURANCE_LAW_CROSS_SELL_WEBHOOK}}",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { source_vertical: 'vat_law', cross_sell_product: 'tax_investigation_cover', customer_id: $json.customer_id, customer_email: $json.customer_email, reason: 'red_band_penalty_exposure', live_points: $json.live_points, threshold: $json.threshold } }}",
+        "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "Authorization", "value": "=Bearer {{$env.INSURANCE_LAW_API_KEY}}" }] }
+      },
+      "name": "Cross-fire to insurance.law",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1320, 200]
+    },
+    {
+      "parameters": {
+        "url": "https://api.resend.com/emails",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { from: $env.RESEND_FROM_EMAIL, to: $json.customer_email, subject: '[' + ($json.band === 'red' ? 'URGENT' : 'Amber') + '] VAT penalty point exposure — ' + $json.customer_legal_name, html: '<p>Your VAT penalty point ledger now sits at <strong>' + $json.live_points + '/' + $json.threshold + '</strong> (' + $json.stagger + ' stagger).</p><p>At threshold, HMRC levies a £200 fixed penalty plus £200 for each further default until you achieve a clean record (4 consecutive on-time submissions for quarterly stagger).</p><p>vat.law has flagged the next ' + Math.max(0, $json.threshold - $json.live_points) + ' return(s) for the high-priority India QA queue. Tax investigation insurance cover may be available — log into the dashboard.</p>' } }}",
+        "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "Authorization", "value": "=Bearer {{$env.RESEND_API_KEY}}" }] }
+      },
+      "name": "Email customer dashboard alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1320, 400]
+    }
+  ],
+  "connections": {
+    "Weekly Monday 08:00 UK": { "main": [[{ "node": "Fetch penalty point ledger", "type": "main", "index": 0 }]] },
+    "Fetch penalty point ledger": { "main": [[{ "node": "Forecast 24m points exposure", "type": "main", "index": 0 }]] },
+    "Forecast 24m points exposure": { "main": [[{ "node": "Snapshot row for dashboard", "type": "main", "index": 0 }]] },
+    "Snapshot row for dashboard": { "main": [[{ "node": "If band = red", "type": "main", "index": 0 }]] },
+    "If band = red": { "main": [[{ "node": "Cross-fire to insurance.law", "type": "main", "index": 0 }], [{ "node": "Email customer dashboard alert", "type": "main", "index": 0 }]] },
+    "Cross-fire to insurance.law": { "main": [[{ "node": "Email customer dashboard alert", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": ["vat_law", "cron", "active_on_import", "penalty_points", "cross_sell"]
+}

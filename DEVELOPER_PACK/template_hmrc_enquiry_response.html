@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HMRC Enquiry Response Pack — {{customer_legal_name}}</title>
+<style>
+  @page { size: A4; margin: 20mm 18mm; }
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1f2937; font-size: 10.5pt; line-height: 1.6; }
+  .header { display: flex; justify-content: space-between; padding-bottom: 14px; border-bottom: 2px solid #4338ca; margin-bottom: 20px; }
+  .logo { font-weight: 900; color: #4338ca; font-size: 17pt; letter-spacing: -0.01em; }
+  .doc-ref { font-size: 9pt; color: #6b7280; text-align: right; }
+  h1 { font-size: 20pt; margin: 0 0 4px 0; color: #312e81; }
+  .subtitle { font-size: 10pt; color: #6b7280; margin-bottom: 22px; }
+  h2 { font-size: 12pt; margin: 22px 0 10px 0; color: #4338ca; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 4px; border-bottom: 1px solid #a5b4fc; }
+  h3 { font-size: 11pt; margin: 14px 0 6px 0; color: #312e81; }
+  p { margin: 0 0 10px 0; }
+  ol, ul { margin: 0 0 12px 22px; padding: 0; }
+  li { margin-bottom: 5px; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 9.5pt; }
+  th, td { border: 1px solid #a5b4fc; padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: #eef2ff; color: #312e81; font-weight: 600; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .cover-letter { background: #ffffff; border: 1px solid #a5b4fc; padding: 22px 26px; border-radius: 8px; margin: 16px 0; font-size: 10.5pt; line-height: 1.7; }
+  .cover-letter .from-block { text-align: right; font-size: 9.5pt; color: #312e81; margin-bottom: 18px; }
+  .statutory-box { background: #eef2ff; border: 2px solid #4338ca; padding: 12px 16px; border-radius: 8px; margin-bottom: 18px; font-size: 10pt; color: #312e81; }
+  .finance-box { background: #fef3c7; border: 1.5px solid #fbbf24; padding: 12px 16px; border-radius: 8px; margin: 14px 0; font-size: 10.5pt; color: #78350f; }
+  .qa-stamp { display: inline-block; background: #eef2ff; border: 1.5px dashed #4338ca; padding: 6px 12px; border-radius: 6px; font-size: 9.5pt; color: #312e81; margin: 10px 0; }
+  .signature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 28px; padding-top: 16px; border-top: 1px solid #a5b4fc; }
+  .sig-block { font-size: 9.5pt; }
+  .sig-line { border-top: 1px solid #1f2937; margin-top: 34px; padding-top: 4px; font-size: 9pt; color: #6b7280; }
+  .footer { margin-top: 28px; padding-top: 12px; border-top: 1px solid #a5b4fc; font-size: 8.5pt; color: #6b7280; line-height: 1.5; }
+  .pagebreak { page-break-before: always; }
+  .ref-list { background: #f9fafb; border: 1px solid #e5e7eb; padding: 10px 14px; border-radius: 6px; font-size: 9.5pt; color: #4b5563; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">vat.law</div>
+  <div class="doc-ref">
+    Pack ref: ENQ-{{enquiry_ref}}<br>
+    HMRC ref: {{hmrc_reference}}<br>
+    Response deadline: {{response_deadline}}
+  </div>
+</div>
+
+<h1>HMRC Enquiry Response Pack</h1>
+<div class="subtitle">{{customer_legal_name}} · VAT Enquiry · {{hmrc_office_name}}</div>
+
+<div class="statutory-box">
+  <strong>Statutory basis.</strong> Response to an enquiry / information notice / pre-assessment correspondence issued under Schedule 36 of the Finance Act 2008 or to a VAT assessment under section 73 of VATA 1994. Time limits run from the date of the notice. Failure to respond within the prescribed window can result in penalties under Schedule 24 (inaccuracy) and Schedule 36 (failure to comply). The CTA partner adviser of record signs the cover letter and carries the regulated correspondence accountability.
+</div>
+
+<h2>1. Cover letter (CTA partner signs)</h2>
+
+<div class="cover-letter">
+  <div class="from-block">
+    {{cta_partner.firm_name}}<br>
+    {{cta_partner.firm_address_line1}}<br>
+    {{cta_partner.firm_address_line2}}<br>
+    {{cta_partner.firm_postcode}}<br>
+    CIOT #{{cta_partner.ciot_number}}<br>
+    {{issued_at}}
+  </div>
+
+  <p>
+    HM Revenue & Customs<br>
+    {{hmrc_office_name}}<br>
+    {{hmrc_office_address}}
+  </p>
+
+  <p><strong>Dear Officer {{hmrc_officer_name}},</strong></p>
+
+  <p><strong>{{customer_legal_name}} · VAT Registration {{customer_vat_number}} · Your reference {{hmrc_reference}}</strong></p>
+
+  <p>I write in response to your letter dated {{hmrc_letter_date}} concerning the above taxpayer. I am instructed by {{customer_legal_name}} and act as the regulated tax adviser of record. The technology platform vat.law has prepared the supporting evidence pack and reconciliation; I have reviewed and endorse the response.</p>
+
+  <p>{{cover_letter_paragraph_response_summary}}</p>
+
+  <p>The evidence appendix (Appendix A), the reconciliation table (Appendix B), and the audit-trail summary (Appendix C) are enclosed. Each schedule is cross-referenced to the relevant primary record retained in the customer's evidence vault. Originals are available for inspection on reasonable notice at the customer's registered office.</p>
+
+  <p>{{cover_letter_paragraph_position_statement}}</p>
+
+  <p>I would be grateful if you could direct any further correspondence to me at the address above. I will be the single point of contact for this matter.</p>
+
+  <p>Yours sincerely,</p>
+
+  <p style="margin-top: 36px;">
+    ____________________________<br>
+    <strong>{{cta_partner.adviser_name}}</strong> · CTA · CIOT #{{cta_partner.ciot_number}}<br>
+    {{cta_partner.firm_name}}
+  </p>
+</div>
+
+<div class="pagebreak"></div>
+
+<h2>2. Appendix A — evidence index</h2>
+
+<table>
+  <tr><th style="width:8%">Ref</th><th>Document</th><th>Date</th><th>Source system</th><th>Hash / page count</th></tr>
+  {{#each evidence_appendix}}
+  <tr>
+    <td>A.{{this.ref}}</td>
+    <td>{{this.description}}</td>
+    <td>{{this.date}}</td>
+    <td>{{this.source_system}}</td>
+    <td>{{this.hash_or_pages}}</td>
+  </tr>
+  {{/each}}
+</table>
+
+<div class="ref-list">
+  <strong>Cross-references in the cover letter:</strong>
+  <ul>
+    {{#each cover_letter_cross_refs}}<li>{{this}}</li>{{/each}}
+  </ul>
+</div>
+
+<h2>3. Appendix B — reconciliation table</h2>
+
+<p>The table reconciles the figures in the VAT return periods under enquiry to the underlying sales and purchase ledgers, and to the bank.</p>
+
+<table>
+  <tr>
+    <th>Period</th><th>Return box</th><th>Return value (£)</th><th>Ledger value (£)</th><th>Variance (£)</th><th>Explanation</th>
+  </tr>
+  {{#each reconciliation_rows}}
+  <tr>
+    <td>{{this.period}}</td>
+    <td>{{this.box}}</td>
+    <td class="num">{{this.return_value}}</td>
+    <td class="num">{{this.ledger_value}}</td>
+    <td class="num">{{this.variance}}</td>
+    <td>{{this.explanation}}</td>
+  </tr>
+  {{/each}}
+</table>
+
+<h3>Assessed liability</h3>
+<table>
+  <tr><th>Item</th><th>Amount</th></tr>
+  <tr><td>HMRC's provisional assessment</td><td class="num">£{{assessed.hmrc_provisional}}</td></tr>
+  <tr><td>Taxpayer's position</td><td class="num">£{{assessed.taxpayer_position}}</td></tr>
+  <tr><td>Variance disputed</td><td class="num">£{{assessed.variance_disputed}}</td></tr>
+  <tr><td>Penalty exposure (Schedule 24 worst case)</td><td class="num">£{{assessed.penalty_worst_case}}</td></tr>
+  <tr><td>Interest exposure</td><td class="num">£{{assessed.interest_exposure}}</td></tr>
+</table>
+
+<h2>4. Appendix C — audit-trail summary</h2>
+
+<p>Every figure in Appendix B is traceable to a system-of-record event captured in vat.law's audit log. The summary below shows the source-system identifiers; the full audit log (JSON) is available on request.</p>
+
+<table>
+  <tr><th>Box / claim</th><th>Source system</th><th>Event count</th><th>First event</th><th>Last event</th><th>Operator</th></tr>
+  {{#each audit_trail_summary}}
+  <tr>
+    <td>{{this.scope}}</td>
+    <td>{{this.source_system}}</td>
+    <td class="num">{{this.event_count}}</td>
+    <td>{{this.first_event}}</td>
+    <td>{{this.last_event}}</td>
+    <td>{{this.operator}}</td>
+  </tr>
+  {{/each}}
+</table>
+
+<h2>5. Human QA pre-screen</h2>
+<div class="qa-stamp">
+  <strong>Human QA stamp.</strong> Reviewer: {{india_qa_reviewer_name}} · Reviewed: {{india_qa_reviewed_at}} · Stamp ref: {{india_qa_stamp_ref}}
+</div>
+<p>The evidence index, reconciliation arithmetic, and audit-trail summary have been pre-screened by vat.law's human QA layer. The CTA partner has performed the final review and signs the cover letter.</p>
+
+<h2>6. Supreme Capital financing referral (assessed liability over £5,000)</h2>
+
+{{#if supreme_capital_referral_required}}
+<div class="finance-box">
+  <strong>Advance financing referral.</strong> The assessed liability of £{{assessed.hmrc_provisional}} exceeds the £5,000 referral threshold. <strong>Supreme Capital</strong> (FCA Authorised Representative) can advance the assessed amount over 12–36 months while the enquiry is resolved, freeing working capital. A referral has been logged; Supreme Capital will contact {{customer_key_contact_name}} within two working days. The referral is at the customer's option and is firewalled from the CTA partner's advice.
+  <p style="margin-top:8px"><strong>Referral ID:</strong> {{supreme_capital_referral_id}}</p>
+</div>
+{{else}}
+<p>The assessed liability is at or below the £5,000 referral threshold. Supreme Capital financing has not been offered.</p>
+{{/if}}
+
+<div class="signature-grid">
+  <div class="sig-block">
+    <strong>Authorised on behalf of {{customer_legal_name}}</strong>
+    <div class="sig-line">Director / Finance Lead signature</div>
+    <div class="sig-line">Printed name · role · date</div>
+  </div>
+  <div class="sig-block">
+    <strong>Sent by {{cta_partner.firm_name}}</strong>
+    <div class="sig-line">CTA partner signature</div>
+    <div class="sig-line">Printed name · CIOT number · date</div>
+  </div>
+</div>
+
+<div class="footer">
+  This HMRC enquiry response pack is prepared by vat.law (the technology platform) and reviewed and signed by the CTA partner adviser of record. vat.law is not a CTA / CIOT-regulated tax adviser. The cover letter is sent by the CTA partner; the customer remains the registered taxable person. Schedule 36 Finance Act 2008 and section 73 VATA 1994 govern the underlying powers. Not legal or tax advice.
+</div>
+
+</body>
+</html>

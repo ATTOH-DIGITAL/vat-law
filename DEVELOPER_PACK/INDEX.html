@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>vat.law — Developer Pack INDEX</title>
+<style>
+  :root { --indigo: #4338ca; --indigo-dark: #312e81; --indigo-light: #eef2ff; --border: #a5b4fc; --ink: #0f172a; --muted: #475569; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: var(--ink); margin: 0; line-height: 1.5; background: #f8fafc; }
+  .brandbar { background: var(--indigo); color: #fff; padding: 28px 36px; }
+  .brandbar h1 { margin: 0; font-size: 26pt; font-weight: 700; letter-spacing: -0.01em; }
+  .brandbar .sub { margin-top: 6px; opacity: 0.9; font-size: 12pt; }
+  .meta-strip { background: var(--indigo-dark); color: #fff; padding: 14px 36px; font-size: 10.5pt; display: flex; flex-wrap: wrap; gap: 24px; }
+  .meta-strip span strong { color: var(--border); margin-right: 6px; }
+  main { max-width: 1180px; margin: 0 auto; padding: 32px 36px 80px; }
+  .lead { background: var(--indigo-light); border-left: 4px solid var(--indigo); padding: 18px 22px; margin: 0 0 28px; font-size: 11pt; }
+  h2 { color: var(--indigo); font-size: 16pt; margin: 36px 0 12px; border-bottom: 2px solid var(--border); padding-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.04); font-size: 10.5pt; }
+  th { background: var(--indigo); color: #fff; text-align: left; padding: 10px 14px; font-weight: 600; }
+  td { border-bottom: 1px solid #e2e8f0; padding: 9px 14px; vertical-align: top; }
+  td.file { font-family: ui-monospace, "SF Mono", Consolas, monospace; font-size: 10pt; color: var(--indigo-dark); white-space: nowrap; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 9pt; background: var(--indigo-light); color: var(--indigo-dark); margin-right: 4px; }
+  .tag.new { background: #fef3c7; color: #92400e; }
+  .tag.snap { background: #d1fae5; color: #065f46; }
+  .tag.cta { background: #fce7f3; color: #9d174d; }
+  .tag.hmrc { background: #dbeafe; color: #1e40af; }
+  footer { margin-top: 60px; padding: 18px 22px; background: var(--indigo-light); border-left: 4px solid var(--indigo); font-size: 10pt; color: var(--muted); }
+  footer a { color: var(--indigo); }
+</style>
+</head>
+<body>
+
+<div class="brandbar">
+  <h1>vat.law &middot; Developer Pack</h1>
+  <div class="sub">Vertical #25 of the Supreme Operating System &mdash; AI-native UK complex-VAT navigator</div>
+</div>
+
+<div class="meta-strip">
+  <span><strong>Reuse</strong> 78%</span>
+  <span><strong>Build</strong> &pound;5,600 / 4 weeks</span>
+  <span><strong>Y1 target</strong> &pound;481k</span>
+  <span><strong>Brand</strong> indigo #4338ca</span>
+  <span><strong>Regulated layer</strong> CTA / CIOT / ATT partner adviser</span>
+  <span><strong>HMRC</strong> MTD VAT API (sanctioned &mdash; no RPA)</span>
+</div>
+
+<main>
+
+<div class="lead">
+  <strong>What this pack is.</strong> A self-contained drop-in for the vat.law runtime &mdash; 1 SQL migration, 5 snap modules, 5 PDF templates, 5 n8n workflows, 3 Railway infra files, manifest, and this INDEX. Mirror this directory into <code>runtime/snap_modules/</code>, <code>runtime/document_templates/</code>, <code>runtime/n8n_workflows/</code>, <code>runtime/supabase_migrations/</code> and <code>runtime/railway/</code> at deploy. 2.179m UK VAT-registered businesses; MTD VAT mandatory since April 2022; April 2025 LPP escalation tightens the penalty regime. vat.law is the platform &mdash; the CTA / CIOT / ATT partner signs off regulated complex-VAT advice on customer specific facts.
+</div>
+
+<h2>Database migration (1 file)</h2>
+<table>
+  <tr><th>File</th><th>Description</th></tr>
+  <tr><td class="file">sql_001_vat_law_init.sql</td>
+      <td>11 tables &middot; RLS &middot; audit triggers &middot; seed for <code>vat_cta_partners</code> (3 CTA / CIOT / ATT seed firms). Tables: <code>vat_customers</code>, <code>vat_registrations</code>, <code>vat_returns</code>, <code>vat_return_lines</code>, <code>vat_partial_exemption_calcs</code>, <code>vat_drc_classifications</code>, <code>vat_margin_records</code>, <code>vat_oss_returns</code>, <code>vat_enquiries</code>, <code>vat_cta_referrals</code>, <code>vat_alerts</code>.</td></tr>
+</table>
+
+<h2>Snap modules (5 files)</h2>
+<table>
+  <tr><th>File</th><th>Description</th></tr>
+  <tr><td class="file">module_partial_exemption.js</td>
+      <td><span class="tag new">new</span><span class="tag cta">CTA sign</span>Standard method (residual recovery %) &middot; de minimis test (&pound;625/mo + 50% rule) &middot; longer-period annual adjustment &middot; capital goods scheme interplay &middot; methodology memo payload.</td></tr>
+  <tr><td class="file">module_drc_matrix.js</td>
+      <td><span class="tag new">new</span>Domestic Reverse Charge classifier &middot; construction services (CIS-linked) decision tree &middot; end-user / intermediary supplier exclusion &middot; 5% disregard &middot; batch reclassification &middot; invoice-note builder.</td></tr>
+  <tr><td class="file">module_margin_toms.js</td>
+      <td><span class="tag new">new</span>Margin Scheme + TOMS engine &middot; second-hand goods (global accounting + item-by-item) &middot; TOMS for tour operators &middot; per-supply margin &middot; quarterly record builder &middot; stock-book reconciliation.</td></tr>
+  <tr><td class="file">module_oss_engine.js</td>
+      <td><span class="tag new">new</span>One Stop Shop (Union / non-Union / IOSS) &middot; 27 EU MS rate-table &middot; &euro;10k Union threshold tracker &middot; 2-piece customer-location test &middot; &euro;150 IOSS consignment route &middot; quarterly draft.</td></tr>
+  <tr><td class="file">module_cta_referrer.js</td>
+      <td><span class="tag snap">snap 90%</span><span class="tag cta">CTA</span>CTA partner referrer &middot; routes regulated complex-VAT advice (methodology agreement, TOMS election, CGS dispute, HMRC enquiry, voluntary disclosure) &middot; firewall log &middot; referral receipt + DocuSign &middot; pattern lift from <code>immigration.law/oisc_referrer</code>.</td></tr>
+</table>
+
+<h2>PDF templates (5 files &middot; Handlebars + Puppeteer)</h2>
+<table>
+  <tr><th>File</th><th>Tier</th><th>Description</th></tr>
+  <tr><td class="file">template_partial_exemption_memo.html</td><td>Pro</td>
+      <td><span class="tag cta">CTA sign</span>Standard method computation &middot; de minimis test &middot; longer-period adjustment &middot; CGS cross-walk &middot; HMRC-ready format for s.102 special-method application.</td></tr>
+  <tr><td class="file">template_drc_invoice_pack.html</td><td>Pro</td>
+      <td>Per-supply DRC classification &middot; invoice-note language ('reverse charge: customer to pay the VAT to HMRC') &middot; end-user exclusion attestation &middot; 5% disregard explainer.</td></tr>
+  <tr><td class="file">template_margin_quarterly_record.html</td><td>Pro</td>
+      <td>Per-item margin schedule (or global accounting summary) &middot; stock-book reconciliation &middot; gross margin reconciliation to P&amp;L &middot; TOMS in-scope vs out-of-scope split.</td></tr>
+  <tr><td class="file">template_oss_return_draft.html</td><td>Cross-Border</td>
+      <td>27 EU MS line items &middot; rate-table cross-check &middot; evidence-of-customer-location attestation &middot; &euro;10k threshold flag &middot; &euro;150 IOSS consignment summary.</td></tr>
+  <tr><td class="file">template_hmrc_enquiry_response.html</td><td>&pound;495 enquiry</td>
+      <td><span class="tag cta">CTA sign</span><span class="tag hmrc">claude-opus-4-8</span>HMRC VAT enquiry response binder &middot; s.29 / sch.36 cross-walk &middot; per-question evidence index &middot; voluntary-disclosure schedule (where applicable).</td></tr>
+</table>
+
+<h2>n8n workflows (5 files)</h2>
+<table>
+  <tr><th>File</th><th>Trigger</th><th>Description</th></tr>
+  <tr><td class="file">n8n_01_return_due_cron.json</td><td>CRON 0 7 * * *</td>
+      <td>Daily 07:00 UK &middot; per-customer VAT stagger &middot; 30/14/7/3/1-day alerts &middot; annual-adjustment trigger in stagger month 12.</td></tr>
+  <tr><td class="file">n8n_02_penalty_point_exposure_cron.json</td><td>CRON 0 8 * * 1</td>
+      <td>Weekly Mon 08:00 UK &middot; April 2025 LPP escalation tracker &middot; alert within 1 point of threshold (annual=4, quarterly=4, monthly=5) &middot; CTA escalation at 4-point limit.</td></tr>
+  <tr><td class="file">n8n_03_threshold_breach_webhook.json</td><td>POST /threshold-breach</td>
+      <td>Webhook &middot; rolling-12-month taxable-turnover scan &middot; &pound;90k registration / &pound;88k deregistration &middot; 30-day mandatory registration clock &middot; Pro-tier upgrade prompt.</td></tr>
+  <tr><td class="file">n8n_04_enquiry_intake_webhook.json</td><td>POST /enquiry-intake</td>
+      <td>Webhook &middot; HMRC enquiry notice intake (&pound;495 one-off) &middot; s.29 / sch.36 OCR &middot; CTA partner assigned &middot; 28-day clock &middot; binder workspace spin-up.</td></tr>
+  <tr><td class="file">n8n_05_cta_referral_webhook.json</td><td>POST /cta-refer</td>
+      <td>Webhook &middot; routes regulated complex-VAT advice to CTA / CIOT / ATT partner firm &middot; firewall attestation &middot; referral brief &middot; DocuSign trigger.</td></tr>
+</table>
+
+<h2>Railway infrastructure (3 files)</h2>
+<table>
+  <tr><th>File</th><th>Description</th></tr>
+  <tr><td class="file">railway_Dockerfile</td>
+      <td>Node 20 Alpine + Chromium (Puppeteer PDF) &middot; non-root user &middot; multi-stage build &middot; <strong>no Playwright</strong> (HMRC MTD has a sanctioned API; no portal RPA required).</td></tr>
+  <tr><td class="file">railway_railway.json</td><td>2 replicas prod &middot; ON_FAILURE restart &middot; healthcheckPath <code>/api/health</code>.</td></tr>
+  <tr><td class="file">railway_.env.example</td>
+      <td>Env vars &middot; Supabase &middot; Stripe (3 tiers + annual + &pound;495 enquiry) &middot; Anthropic &middot; Resend &middot; HMRC MTD VAT (OAuth2 + fraud-prevention headers) &middot; Xero / QB / Sage / FreeAgent OAuth &middot; India QA queue &middot; CTA partner webhook &middot; Supreme Capital &middot; cross-vertical webhooks &middot; feature flags.</td></tr>
+</table>
+
+<h2>Manifest</h2>
+<table>
+  <tr><th>File</th><th>Description</th></tr>
+  <tr><td class="file">SNAP_MANIFEST.json</td>
+      <td>Machine-readable registry &middot; 19 files &middot; stack reuse 78% &middot; regulatory boundaries &middot; forbidden language list.</td></tr>
+</table>
+
+<h2>Snap sources (78% Supreme-stack reuse)</h2>
+<table>
+  <tr><th>Source vertical</th><th>Reuse %</th><th>What we snap</th></tr>
+  <tr><td>sole.tax</td><td>95%</td><td>HMRC MTD client (OAuth2 + fraud-prevention headers) &middot; stagger / return-period scheduler &middot; accounting-system OAuth &middot; threshold radar &middot; penalty-point tracker</td></tr>
+  <tr><td>immigration.law</td><td>90%</td><td>CTA partner referrer pattern (mirrors OISC Level 3 partner) &middot; firewall log &middot; receipt + DocuSign &middot; 3-seed-firm reference table</td></tr>
+  <tr><td>apex_saas</td><td>85%</td><td>Claude doc factory &middot; Puppeteer PDF &middot; Supabase Storage evidence vault &middot; India QA queue &middot; Resend</td></tr>
+  <tr><td>pension.law</td><td>70%</td><td>30/14/7/3/1-day cron pattern &middot; annual-adjustment cadence &middot; dedup &middot; 4-year cycle reused for CGS 10-year cycle</td></tr>
+  <tr><td>accounts.law</td><td>60%</td><td>Limited-company customer model &middot; period-close orchestration &middot; CT-period vs VAT-stagger reconciliation</td></tr>
+  <tr><td>gdpr.law</td><td>50%</td><td>Audit trail pattern &middot; encrypted-at-rest evidence vault &middot; lawful-basis logging</td></tr>
+  <tr><td>supreme_capital</td><td>40%</td><td>FCA AR broker pattern reused for HMRC liability advance financing &middot; firewalled commission boundary</td></tr>
+</table>
+
+<footer>
+  <strong>Regulatory boundary reminder.</strong> vat.law is a technology platform &mdash; MTD VAT submission, deterministic complex-VAT computation, audit trail. It is <em>not</em> a regulated tax adviser on customer specific facts. All regulated complex-VAT advice (partial-exemption methodology agreement, TOMS election, CGS dispute, HMRC enquiry response, voluntary disclosure) is routed to the customer's CTA / CIOT / ATT partner adviser. Every regulator-facing output requires India QA pre-screen and CTA partner sign-off &mdash; never auto-send. See <code>CLAUDE.md</code> and <code>SNAP_MANIFEST.json &rarr; regulatory_boundaries</code>.
+</footer>
+
+</main>
+</body>
+</html>

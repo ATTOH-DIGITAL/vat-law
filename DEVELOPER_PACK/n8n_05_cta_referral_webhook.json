@@ -1,0 +1,109 @@
+{
+  "name": "vat.law · 05 · CTA partner referral router",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "vat-cta-refer",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook · CTA referral request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/vat_customers?id=eq.{{$json.body.customer_id}}&select=*",
+        "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$env.SUPABASE_SERVICE_ROLE_KEY}}" }] }
+      },
+      "name": "Fetch customer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/vat_cta_partners?select=*&active=eq.true",
+        "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$env.SUPABASE_SERVICE_ROLE_KEY}}" }] }
+      },
+      "name": "Fetch active CTA partners",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Router: geography → capacity → specialism.\n// Three seed CTA partners: Westminster CTA Partners (London/SE), Manchester Tax Advisers (NW/Midlands), Newcastle Indirect Tax (NE/Scotland).\nconst customer = ($('Fetch customer').item.json[0]) || $('Fetch customer').item.json;\nconst partners = items.map(i => i.json);\nconst body = $('Webhook · CTA referral request').item.json.body || {};\nconst region = (customer.address_region || '').toLowerCase();\nconst topic = (body.topic || '').toLowerCase();\nconst triggers = body.detected_triggers || [];\n\n// 1. Geography match\nlet pool = partners.filter(p => {\n  const cov = (p.coverage_regions || []).map(r => String(r).toLowerCase());\n  return cov.includes(region);\n});\n// 2. Specialism filter — if a specialism trigger is named, intersect\nif (triggers.length) {\n  const specialised = pool.filter(p => {\n    const sp = (p.specialisms || []).map(s => String(s).toLowerCase());\n    return triggers.some(t => sp.includes(String(t).toLowerCase()));\n  });\n  if (specialised.length) pool = specialised;\n}\n// 3. If empty after geography, fall back to all partners with specialism match\nif (!pool.length && triggers.length) {\n  pool = partners.filter(p => {\n    const sp = (p.specialisms || []).map(s => String(s).toLowerCase());\n    return triggers.some(t => sp.includes(String(t).toLowerCase()));\n  });\n}\n// 4. Final fallback: any active partner\nif (!pool.length) pool = partners;\n// 5. Capacity sort: lowest open_referral_count wins; tie-break on id\npool.sort((a,b) => (a.open_referral_count||0) - (b.open_referral_count||0) || String(a.id).localeCompare(String(b.id)));\nconst chosen = pool[0];\n\nreturn [{ json: {\n  customer,\n  partner: chosen,\n  query: { text: body.query_text || '', topic, triggers, source_channel: body.source_channel || 'dashboard' },\n  context_payload: body.context_payload || null,\n  referral_id: 'VAT-REF-' + Date.now()\n} }];"
+      },
+      "name": "Pick partner (geo → specialism → capacity)",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [880, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/vat_cta_referrals",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { id: $json.referral_id, customer_id: $json.customer.id, partner_id: $json.partner.id, query_text: $json.query.text, topic: $json.query.topic, detected_triggers: $json.query.triggers, source_channel: $json.query.source_channel, status: 'sent', sent_at: $now.toISO() } }}",
+        "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$env.SUPABASE_SERVICE_ROLE_KEY}}" }] }
+      },
+      "name": "Log referral row",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1100, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/rpc/increment_cta_partner_open_count",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { p_partner_id: $json.partner.id } }}",
+        "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$env.SUPABASE_SERVICE_ROLE_KEY}}" }] }
+      },
+      "name": "Increment partner open count",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1320, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.resend.com/emails",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { from: $env.RESEND_FROM_EMAIL, to: $('Pick partner (geo → specialism → capacity)').item.json.partner.primary_email, cc: [$('Pick partner (geo → specialism → capacity)').item.json.customer.contact_email, $env.SUPREME_TEAM_CC_EMAIL], subject: 'ATTOH VAT & CIS CTA referral — ' + $('Pick partner (geo → specialism → capacity)').item.json.customer.legal_name + ' (' + $('Pick partner (geo → specialism → capacity)').item.json.referral_id + ')', html: '<p>A vat.law customer requires regulated VAT advice. vat.law is the technology platform; you are the regulated CTA / CIOT adviser.</p><p><strong>Customer:</strong> ' + $('Pick partner (geo → specialism → capacity)').item.json.customer.legal_name + '<br/><strong>VRN:</strong> ' + ($('Pick partner (geo → specialism → capacity)').item.json.customer.vat_number || 'n/a') + '<br/><strong>Contact:</strong> ' + $('Pick partner (geo → specialism → capacity)').item.json.customer.contact_name + ' &lt;' + $('Pick partner (geo → specialism → capacity)').item.json.customer.contact_email + '&gt;<br/><strong>Region:</strong> ' + $('Pick partner (geo → specialism → capacity)').item.json.customer.address_region + '<br/><strong>Topic:</strong> ' + $('Pick partner (geo → specialism → capacity)').item.json.query.topic + '<br/><strong>Detected triggers:</strong> ' + (($('Pick partner (geo → specialism → capacity)').item.json.query.triggers || []).join(', ') || 'manual referral') + '</p><p><strong>Query:</strong></p><blockquote>' + ($('Pick partner (geo → specialism → capacity)').item.json.query.text || '(none — see dashboard)') + '</blockquote><p>Commercial terms: 50/50 fee split on partner-charged advice fees. Commission firewalled from routing decision. Please respond within two working days.</p>' } }}",
+        "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "Authorization", "value": "=Bearer {{$env.RESEND_API_KEY}}" }] }
+      },
+      "name": "Email partner + customer + Supreme cc",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1540, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, referral_id: $('Pick partner (geo → specialism → capacity)').item.json.referral_id, partner_firm_name: $('Pick partner (geo → specialism → capacity)').item.json.partner.firm_name, partner_ciot_number: $('Pick partner (geo → specialism → capacity)').item.json.partner.ciot_number, partner_coverage: $('Pick partner (geo → specialism → capacity)').item.json.partner.coverage_regions } }}"
+      },
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1760, 300]
+    }
+  ],
+  "connections": {
+    "Webhook · CTA referral request": { "main": [[{ "node": "Fetch customer", "type": "main", "index": 0 }]] },
+    "Fetch customer": { "main": [[{ "node": "Fetch active CTA partners", "type": "main", "index": 0 }]] },
+    "Fetch active CTA partners": { "main": [[{ "node": "Pick partner (geo → specialism → capacity)", "type": "main", "index": 0 }]] },
+    "Pick partner (geo → specialism → capacity)": { "main": [[{ "node": "Log referral row", "type": "main", "index": 0 }]] },
+    "Log referral row": { "main": [[{ "node": "Increment partner open count", "type": "main", "index": 0 }]] },
+    "Increment partner open count": { "main": [[{ "node": "Email partner + customer + Supreme cc", "type": "main", "index": 0 }]] },
+    "Email partner + customer + Supreme cc": { "main": [[{ "node": "Respond OK", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": ["vat_law", "webhook", "manual_activate", "cta_referral"]
+}

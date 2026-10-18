@@ -1,0 +1,44 @@
+-- =====================================================
+-- vat.law · Migration 006 · vat_cta_partners RLS backfill
+-- Additive migration — non-destructive (never edits shipped sql_001).
+-- Generated: 1 July 2026 (build loop · fourth pass)
+-- =====================================================
+-- Closes a real, previously-unlisted RLS gap surfaced by scripts/verify.mjs:
+--
+--   vat_cta_partners is created in sql_001 (line ~428) as the CTA/CIOT/ATT
+--   partner-firm directory, but sql_001's RLS block (lines ~547-585) enables
+--   RLS on all 12 tenant/audit tables EXCEPT this one. So vat_cta_partners
+--   shipped with RLS OFF.
+--
+-- Why this matters (security, not cosmetics): the table holds partner PII and
+-- commercially-sensitive terms — primary_contact_email, primary_contact_phone,
+-- referral_commission_pct, fee_split_terms. With RLS off, any holder of the
+-- anon key (the client-side/public key, NEXT_PUBLIC_SUPABASE_ANON_KEY) can
+-- `select * from vat_cta_partners` and read every partner's contact + fee
+-- split. That is a partner-confidentiality and commission-terms leak.
+--
+-- Safe to enable now: NO live route reads vat_cta_partners under the anon
+-- client today. The only partner-read route (src/app/api/enquiry/intake)
+-- reads `.from('cta_partners')` — the §5.4 drifted table name that does not
+-- exist — so no current anon read path depends on this table. When §5.4
+-- reconciles that route to the canonical `vat_cta_partners` name, it should
+-- add the explicit authenticated read policy it needs at that time. Until
+-- then: deny-by-default. Back-office round-robin assignment + seeding run
+-- under the service role, which bypasses RLS.
+--
+-- Design decision: NO anon/authenticated SELECT policy is granted. This is a
+-- back-office directory, not customer-facing data. Enabling RLS with no policy
+-- = default-deny for anon/authenticated on all operations; the service role
+-- (round-robin selector, seeding, admin tooling) is unaffected. This mirrors
+-- the "reads are service-role only" posture already used for
+-- threshold_check_leads (sql_002), cross_vertical_events (sql_004) and the
+-- back-office side of vat_obligation_checks (sql_003).
+-- =====================================================
+
+alter table vat_cta_partners enable row level security;
+
+-- Explicitly no SELECT/INSERT/UPDATE/DELETE policy for anon or authenticated:
+-- default-deny. Service role bypasses RLS for the round-robin selector,
+-- seeding and back-office tooling. A future §5.4 reconcile that needs an
+-- authenticated customer to read (e.g. "your assigned adviser") adds a scoped
+-- SELECT policy here at that time.

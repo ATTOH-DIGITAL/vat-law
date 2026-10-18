@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Domestic Reverse Charge Invoice Pack — {{customer_legal_name}}</title>
+<style>
+  @page { size: A4; margin: 18mm 18mm 22mm 18mm; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: #0f172a; font-size: 11pt; line-height: 1.45; }
+  .brandbar { background: #4338ca; color: #fff; padding: 14px 18px; margin: -18mm -18mm 18px -18mm; }
+  .brandbar h1 { margin: 0; font-size: 18pt; font-weight: 600; letter-spacing: -0.01em; }
+  .brandbar .sub { font-size: 10pt; opacity: 0.9; margin-top: 4px; }
+  h2 { color: #4338ca; font-size: 13pt; margin: 22px 0 8px; border-bottom: 1px solid #a5b4fc; padding-bottom: 4px; }
+  h3 { color: #312e81; font-size: 11pt; margin: 14px 0 6px; }
+  .meta { background: #eef2ff; border-left: 3px solid #4338ca; padding: 10px 14px; margin: 12px 0 18px; font-size: 10pt; }
+  .meta dt { font-weight: 600; color: #4338ca; }
+  .meta dd { margin: 0 0 6px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin: 6px 0 12px; }
+  th { background: #4338ca; color: #fff; text-align: left; padding: 6px 8px; font-weight: 600; }
+  td { border-bottom: 1px solid #e2e8f0; padding: 6px 8px; vertical-align: top; }
+  .verdict-drc-applies { background: #ecfdf5; color: #065f46; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+  .verdict-drc-excluded { background: #fef3c7; color: #78350f; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+  .verdict-end-user { background: #ede9fe; color: #5b21b6; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+  .verdict-error { background: #fee2e2; color: #991b1b; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+  .signoff { margin-top: 30px; border: 2px solid #4338ca; padding: 14px; border-radius: 6px; }
+  .stamp { display: inline-block; padding: 4px 10px; background: #4338ca; color: #fff; font-size: 9pt; border-radius: 3px; margin-right: 6px; }
+  .disclaimer { background: #fef3c7; border-left: 3px solid #b45309; padding: 10px 14px; font-size: 9.5pt; margin: 20px 0; }
+  .pagebreak { page-break-before: always; }
+  .legend { font-size: 9pt; color: #475569; margin: 4px 0 14px; }
+</style>
+</head>
+<body>
+
+<div class="brandbar">
+  <h1>Domestic Reverse Charge Invoice Pack</h1>
+  <div class="sub">vat.law · Vertical #25 of the Supreme Operating System · VAT Notice 735 (Construction Services DRC)</div>
+</div>
+
+<dl class="meta">
+  <dt>Customer</dt><dd>{{customer.legal_name}} · VAT {{customer.vat_number}}</dd>
+  <dt>CIS status</dt><dd>{{customer.cis_status}} (UTR {{customer.utr}})</dd>
+  <dt>Pack window</dt><dd>{{meta.window_start}} — {{meta.window_end}}</dd>
+  <dt>Pack type</dt><dd>{{meta.pack_type}}</dd>
+  <dt>Generated</dt><dd>{{meta.generated_at}}</dd>
+  <dt>Total invoices reviewed</dt><dd>{{meta.invoice_count}}</dd>
+</dl>
+
+<div class="disclaimer">
+  <strong>Regulatory note.</strong> The Construction Services Domestic Reverse Charge applies to most supplies of building and construction services reported through CIS, supplied to a UK VAT-registered customer who is not an end user or intermediary. This pack records vat.law's per-invoice determination. Regulated questions on end-user / intermediary status, scope of CIS, or contentious customer disputes are routed to the named CTA partner adviser.
+</div>
+
+<h2>1. Headline summary</h2>
+
+<table>
+  <tr><th>Metric</th><th>Value</th></tr>
+  <tr><td>Invoices where DRC applies (no VAT charged · customer accounts)</td><td>{{summary.drc_applies_count}} ({{summary.drc_applies_value}} ex-VAT)</td></tr>
+  <tr><td>Invoices where DRC excluded — end user / intermediary notification received</td><td>{{summary.end_user_count}} ({{summary.end_user_value}} ex-VAT)</td></tr>
+  <tr><td>Invoices where DRC excluded — service outside CIS scope</td><td>{{summary.outside_scope_count}} ({{summary.outside_scope_value}} ex-VAT)</td></tr>
+  <tr><td>Invoices with errors flagged (VAT charged incorrectly, missing narrative, etc.)</td><td>{{summary.error_count}} ({{summary.error_value}} ex-VAT)</td></tr>
+  <tr><td><strong>Net VAT impact this period</strong></td><td><strong>{{summary.net_vat_impact}}</strong></td></tr>
+</table>
+
+<div class="legend">Legend — <span class="verdict-drc-applies">DRC applies</span> · <span class="verdict-end-user">end user excluded</span> · <span class="verdict-drc-excluded">outside scope</span> · <span class="verdict-error">error — review</span></div>
+
+<h2>2. Invoice-by-invoice verdicts</h2>
+
+<table>
+  <tr>
+    <th>Invoice #</th><th>Date</th><th>Counterparty</th><th>Direction</th><th>Service</th><th>Net (£)</th><th>VAT charged (£)</th><th>Verdict</th>
+  </tr>
+  {{#each invoices}}
+  <tr>
+    <td>{{this.invoice_number}}</td>
+    <td>{{this.invoice_date}}</td>
+    <td>{{this.counterparty_name}} · VAT {{this.counterparty_vat}}</td>
+    <td>{{this.direction}}</td>
+    <td>{{this.service_description}}</td>
+    <td style="text-align:right">{{this.net_value}}</td>
+    <td style="text-align:right">{{this.vat_charged}}</td>
+    <td><span class="verdict-{{this.verdict_class}}">{{this.verdict_label}}</span></td>
+  </tr>
+  {{/each}}
+</table>
+
+<h3>Narrative required on supplier invoices where DRC applies</h3>
+<p>"Reverse charge: VAT Act 1994 Section 55A applies — customer to pay VAT to HMRC." vat.law flags any DRC-applies invoice missing this narrative as an error for re-issue by the supplier.</p>
+
+<div class="pagebreak"></div>
+
+<h2>3. Sub-contractor table (where customer is contractor — DRC applied on purchase ledger)</h2>
+
+<table>
+  <tr>
+    <th>Sub-contractor</th><th>VAT number</th><th>CIS UTR</th><th>Verification status</th><th>Period net (£)</th><th>DRC accounted (£)</th><th>Notes</th>
+  </tr>
+  {{#each subcontractors}}
+  <tr>
+    <td>{{this.legal_name}}</td>
+    <td>{{this.vat_number}}</td>
+    <td>{{this.utr}}</td>
+    <td>{{this.cis_verification_status}}</td>
+    <td style="text-align:right">{{this.period_net}}</td>
+    <td style="text-align:right">{{this.drc_accounted_vat}}</td>
+    <td>{{this.notes}}</td>
+  </tr>
+  {{/each}}
+</table>
+
+<h2>4. End-user / intermediary determination</h2>
+
+<p>An end user is a UK VAT-registered customer that does not make onward supplies of construction services as part of the same site / project. An intermediary is connected to an end user (group, common ownership, common landlord). DRC does not apply where the customer has provided written end-user or intermediary notification before invoicing.</p>
+
+<table>
+  <tr><th>Counterparty</th><th>End user / intermediary notification received?</th><th>Notification dated</th><th>Verdict</th></tr>
+  {{#each end_user_register}}
+  <tr>
+    <td>{{this.counterparty_name}}</td>
+    <td>{{this.notification_received}}</td>
+    <td>{{this.notification_date}}</td>
+    <td><span class="verdict-{{this.verdict_class}}">{{this.verdict_label}}</span></td>
+  </tr>
+  {{/each}}
+</table>
+
+<h2>5. CIS reconciliation</h2>
+
+<table>
+  <tr><th>CIS metric</th><th>Period value</th></tr>
+  <tr><td>Sub-contractor verification calls completed</td><td>{{cis_recon.verifications}}</td></tr>
+  <tr><td>Gross-paid sub-contractors</td><td>{{cis_recon.gross_paid}}</td></tr>
+  <tr><td>20% deduction sub-contractors</td><td>{{cis_recon.standard_deduction}}</td></tr>
+  <tr><td>30% deduction sub-contractors</td><td>{{cis_recon.higher_deduction}}</td></tr>
+  <tr><td>Total CIS withheld in period</td><td>£{{cis_recon.total_withheld}}</td></tr>
+  <tr><td>CIS300 monthly returns filed in window</td><td>{{cis_recon.cis300_returns}}</td></tr>
+</table>
+
+<h2>6. Errors and follow-ups</h2>
+
+{{#if errors.length}}
+<table>
+  <tr><th>Invoice #</th><th>Issue</th><th>Action required</th></tr>
+  {{#each errors}}
+  <tr>
+    <td>{{this.invoice_number}}</td>
+    <td>{{this.issue}}</td>
+    <td>{{this.action}}</td>
+  </tr>
+  {{/each}}
+</table>
+{{else}}
+<p>No errors flagged in the pack window.</p>
+{{/if}}
+
+<h2>7. trained QA reviewer pre-screen</h2>
+<p><span class="stamp">trained QA reviewer</span> Reviewer {{india_qa.reviewer_name}} · Reviewed {{india_qa.reviewed_at}} · Stamp ref {{india_qa.stamp_ref}}</p>
+<p>Every invoice verdict in this pack has been pre-screened by vat.law's trained QA review layer. Where the matrix produced an "uncertain" verdict, the invoice has been escalated to the CTA partner adviser before publication.</p>
+
+<div class="signoff">
+  <h3>Sign-off chain</h3>
+  <p><span class="stamp">trained QA reviewer</span> reviewed by {{india_qa.reviewer_name}} on {{india_qa.reviewed_at}}</p>
+  <p><span class="stamp">CTA partner</span> {{cta_partner.firm_name}} (CIOT #{{cta_partner.ciot_number}}) confirmed by ____________________________ on ______________</p>
+  <p><span class="stamp">Customer</span> Finance lead {{customer.finance_lead}} signed ____________________________ on ______________</p>
+</div>
+
+<div class="disclaimer" style="margin-top: 18px;">
+  <strong>Forbidden language reminder.</strong> This pack must not contain assurances such as "HMRC will accept these classifications" or "this protects you against assessment." Every verdict is evidential, not advisory.
+</div>
+
+</body>
+</html>

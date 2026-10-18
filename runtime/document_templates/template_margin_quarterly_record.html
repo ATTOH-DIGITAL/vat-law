@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Margin Scheme Quarterly Record — {{customer_legal_name}}</title>
+<style>
+  @page { size: A4; margin: 20mm 18mm; }
+  body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1f2937; font-size: 10.5pt; line-height: 1.55; }
+  .header { display: flex; justify-content: space-between; padding-bottom: 14px; border-bottom: 2px solid #4338ca; margin-bottom: 20px; }
+  .logo { font-weight: 900; color: #4338ca; font-size: 17pt; letter-spacing: -0.01em; }
+  .doc-ref { font-size: 9pt; color: #6b7280; text-align: right; }
+  h1 { font-size: 20pt; margin: 0 0 4px 0; color: #312e81; }
+  .subtitle { font-size: 10pt; color: #6b7280; margin-bottom: 22px; }
+  h2 { font-size: 12pt; margin: 22px 0 10px 0; color: #4338ca; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 4px; border-bottom: 1px solid #a5b4fc; }
+  h3 { font-size: 11pt; margin: 14px 0 6px 0; color: #312e81; }
+  p { margin: 0 0 10px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 9pt; }
+  th, td { border: 1px solid #a5b4fc; padding: 5px 7px; text-align: left; vertical-align: top; }
+  th { background: #eef2ff; color: #312e81; font-weight: 600; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .statutory-box { background: #eef2ff; border: 2px solid #4338ca; padding: 12px 16px; border-radius: 8px; margin-bottom: 18px; font-size: 10pt; color: #312e81; }
+  .result-box { background: #ecfdf5; border: 2px solid #10b981; padding: 12px 16px; border-radius: 8px; margin: 12px 0; font-size: 10.5pt; color: #065f46; }
+  .qa-stamp { display: inline-block; background: #eef2ff; border: 1.5px dashed #4338ca; padding: 6px 12px; border-radius: 6px; font-size: 9.5pt; color: #312e81; margin: 10px 0; }
+  .signature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 28px; padding-top: 16px; border-top: 1px solid #a5b4fc; }
+  .sig-block { font-size: 9.5pt; }
+  .sig-line { border-top: 1px solid #1f2937; margin-top: 34px; padding-top: 4px; font-size: 9pt; color: #6b7280; }
+  .footer { margin-top: 28px; padding-top: 12px; border-top: 1px solid #a5b4fc; font-size: 8.5pt; color: #6b7280; line-height: 1.5; }
+  .pagebreak { page-break-before: always; }
+  .scheme-tag { display: inline-block; background: #4338ca; color: #fff; font-size: 9pt; padding: 2px 8px; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">vat.law</div>
+  <div class="doc-ref">
+    Record ref: MS-{{record_ref}}<br>
+    Quarter: {{period_label}}<br>
+    Issued: {{issued_at}}
+  </div>
+</div>
+
+<h1>Margin Scheme Quarterly Record</h1>
+<div class="subtitle">{{customer_legal_name}} · <span class="scheme-tag">{{scheme_type}}</span> · VAT Notice 718 / 718/1 / 718/2 / 709/5</div>
+
+<div class="statutory-box">
+  <strong>Statutory basis.</strong> Records prepared for the second-hand margin scheme (Notice 718), global accounting (Notice 718/2), or the Tour Operators' Margin Scheme (Notice 709/5). A trader using a margin scheme must keep a stock book in chronological order, calculate margin on each sale (or on the pool for global accounting), and account for VAT at the appropriate fraction of the margin. This record evidences compliance; regulated questions on scheme eligibility or scheme switches are routed to the named CTA partner adviser.
+</div>
+
+<h2>1. Customer details</h2>
+<table>
+  <tr><th style="width:30%">Legal name</th><td>{{customer_legal_name}}</td></tr>
+  <tr><th>VAT registration number</th><td>{{customer_vat_number}}</td></tr>
+  <tr><th>Scheme operated</th><td>{{scheme_type_label}}</td></tr>
+  <tr><th>Trade</th><td>{{customer_sector}}</td></tr>
+  <tr><th>Quarter (UK VAT stagger)</th><td>{{period_start}} — {{period_end}}</td></tr>
+  <tr><th>Stock book ID</th><td>{{stock_book_id}}</td></tr>
+</table>
+
+<h2>2. Stock book (chronological)</h2>
+<p>Each row records one item entered into stock during the quarter (margin scheme) or all eligible purchases for the pool (global accounting). Eligible-purchase rules under Notice 718 apply: no VAT receipt on input, item bought from a person who could not invoice VAT, or a private individual.</p>
+
+<table>
+  <tr>
+    <th>Date in</th><th>Stock ref</th><th>Description</th><th>Source</th><th>Purchase £</th><th>Date out</th><th>Sale £</th><th>Margin £</th><th>VAT (1/6) £</th>
+  </tr>
+  {{#each stock_book}}
+  <tr>
+    <td>{{this.date_in}}</td>
+    <td>{{this.stock_ref}}</td>
+    <td>{{this.description}}</td>
+    <td>{{this.source}}</td>
+    <td class="num">{{this.purchase_price}}</td>
+    <td>{{this.date_out}}</td>
+    <td class="num">{{this.sale_price}}</td>
+    <td class="num">{{this.margin}}</td>
+    <td class="num">{{this.vat_on_margin}}</td>
+  </tr>
+  {{/each}}
+</table>
+
+<h2>3. Margin calculation</h2>
+
+{{#if is_global_accounting}}
+<h3>Global accounting pool — quarter</h3>
+<table>
+  <tr><th>Opening pool balance brought forward</th><td class="num">£{{global.opening_pool}}</td></tr>
+  <tr><th>Eligible purchases in quarter</th><td class="num">£{{global.purchases_in}}</td></tr>
+  <tr><th>Sales of eligible stock in quarter</th><td class="num">£{{global.sales_out}}</td></tr>
+  <tr><th>Margin (sales − [opening + purchases])</th><td class="num">£{{global.margin}}</td></tr>
+  <tr><th>VAT due on pool margin (1/6)</th><td class="num">£{{global.vat_on_margin}}</td></tr>
+  <tr><th>Closing pool balance carried forward</th><td class="num">£{{global.closing_pool}}</td></tr>
+</table>
+{{else}}
+<h3>Per-item margin (individual scheme)</h3>
+<table>
+  <tr><th>Total sale value of items sold this quarter</th><td class="num">£{{individual.sales_total}}</td></tr>
+  <tr><th>Total purchase value of items sold this quarter</th><td class="num">£{{individual.purchases_total}}</td></tr>
+  <tr><th>Total margin</th><td class="num">£{{individual.margin_total}}</td></tr>
+  <tr><th>VAT due on margin (1/6 of positive margins; negative margins disregarded)</th><td class="num">£{{individual.vat_on_margin}}</td></tr>
+</table>
+<p>Loss-making sales (negative margins) are disregarded for VAT — they do not reduce VAT due on profitable sales under the individual scheme.</p>
+{{/if}}
+
+<div class="pagebreak"></div>
+
+<h2>4. TOMS pre-payment (Tour Operators' Margin Scheme)</h2>
+
+{{#if toms_section}}
+<p>Where the customer makes designated supplies of travel for direct enjoyment of the traveller, TOMS applies. The provisional calculation runs quarterly and is trued up via the annual TOMS calculation at the year end.</p>
+
+<table>
+  <tr><th>Provisional percentage applied this quarter</th><td>{{toms.provisional_percentage}}%</td></tr>
+  <tr><th>Total selling price of TOMS supplies (incl. VAT)</th><td class="num">£{{toms.total_selling_price}}</td></tr>
+  <tr><th>Estimated direct costs</th><td class="num">£{{toms.direct_costs}}</td></tr>
+  <tr><th>Estimated margin</th><td class="num">£{{toms.estimated_margin}}</td></tr>
+  <tr><th>Output VAT on TOMS margin (1/6)</th><td class="num">£{{toms.output_vat}}</td></tr>
+  <tr><th>Annual reconciliation due</th><td>{{toms.annual_reconciliation_due}}</td></tr>
+</table>
+
+<div class="result-box">
+  <strong>TOMS pre-payment.</strong> {{toms.prepayment_summary}}
+</div>
+{{else}}
+<p>The customer does not operate TOMS this quarter.</p>
+{{/if}}
+
+<h2>5. Global accounting batch</h2>
+
+{{#if global_batch}}
+<p>Items below £500 entered as a batch under Notice 718/2 rules. The batch carries forward into the global pool; individual item-level records are not required for items in this batch.</p>
+
+<table>
+  <tr><th>Batch ref</th><th>Date</th><th>Description</th><th>Item count</th><th>Total purchase £</th><th>Total sale £</th></tr>
+  {{#each global_batches}}
+  <tr>
+    <td>{{this.batch_ref}}</td>
+    <td>{{this.batch_date}}</td>
+    <td>{{this.description}}</td>
+    <td class="num">{{this.item_count}}</td>
+    <td class="num">{{this.purchase_total}}</td>
+    <td class="num">{{this.sale_total}}</td>
+  </tr>
+  {{/each}}
+</table>
+{{else}}
+<p>No global accounting batches this quarter.</p>
+{{/if}}
+
+<h2>6. Reconciliation to the VAT return</h2>
+
+<table>
+  <tr><th>VAT return box</th><th>Margin scheme contribution</th></tr>
+  <tr><td>Box 1 — VAT due on sales</td><td class="num">£{{vat_return.box1_contribution}}</td></tr>
+  <tr><td>Box 6 — Total value of sales (incl. margin VAT)</td><td class="num">£{{vat_return.box6_contribution}}</td></tr>
+  <tr><td>Box 7 — Total purchases (margin scheme purchases included)</td><td class="num">£{{vat_return.box7_contribution}}</td></tr>
+</table>
+
+<h2>7. trained QA reviewer pre-screen</h2>
+<div class="qa-stamp">
+  <strong>trained QA reviewer stamp.</strong> Reviewer: {{india_qa_reviewer_name}} · Reviewed: {{india_qa_reviewed_at}} · Stamp ref: {{india_qa_stamp_ref}}
+</div>
+<p>Stock book, eligibility classification, and margin arithmetic have been pre-screened by vat.law's trained QA review layer. The customer remains responsible for the accuracy of source records (purchase receipts and sales invoices).</p>
+
+<h2>8. CTA partner sign block</h2>
+<p>Reviewed by <strong>{{cta_partner_firm_name}}</strong> (CIOT #{{cta_partner_ciot_number}}) for scheme-eligibility and scheme-design questions.</p>
+
+<div class="signature-grid">
+  <div class="sig-block">
+    <strong>Authorised on behalf of {{customer_legal_name}}</strong>
+    <div class="sig-line">Director / Finance Lead signature</div>
+    <div class="sig-line">Printed name · role · date</div>
+  </div>
+  <div class="sig-block">
+    <strong>Reviewed by {{cta_partner_firm_name}}</strong>
+    <div class="sig-line">CTA partner signature</div>
+    <div class="sig-line">Printed name · CIOT number · date</div>
+  </div>
+</div>
+
+<div class="footer">
+  This margin scheme quarterly record is generated by vat.law (the technology platform) from the stock book, purchase records, and sale records supplied by the customer. vat.law is not a CTA / CIOT-regulated tax adviser. Regulated scheme-design and scheme-switch advice is referred to CTA partner firms. Records must be retained for a minimum of six years (Schedule 11 VATA 1994) or longer where retention is required by a notice. Not legal or tax advice.
+</div>
+
+</body>
+</html>

@@ -1,0 +1,87 @@
+{
+  "name": "vat.law · 03 · £90k threshold breach webhook",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "vat-threshold-breach",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook · threshold breach event",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Inbound event shape:\n// { source_vertical: 'sole_tax' | 'form_law' | 'manual', customer_email, customer_legal_name,\n//   rolling_12m_taxable_turnover, projected_30d_turnover, currency, source_ledger_id }\nconst body = $json.body || {};\nconst THRESHOLD = 90000;\nconst headroom = THRESHOLD - (parseFloat(body.rolling_12m_taxable_turnover) || 0);\nconst forecast_breach_days = body.projected_30d_turnover && parseFloat(body.projected_30d_turnover) > 0\n  ? Math.ceil(headroom / (parseFloat(body.projected_30d_turnover) / 30))\n  : null;\nreturn [{ json: {\n  event_id: 'VAT-TB-' + Date.now(),\n  source_vertical: body.source_vertical || 'manual',\n  customer_email: body.customer_email,\n  customer_legal_name: body.customer_legal_name,\n  rolling_12m: parseFloat(body.rolling_12m_taxable_turnover) || 0,\n  projected_30d: parseFloat(body.projected_30d_turnover) || 0,\n  threshold: THRESHOLD,\n  headroom_gbp: headroom,\n  forecast_breach_days,\n  urgency: headroom <= 5000 ? 'critical' : headroom <= 15000 ? 'high' : 'normal',\n  source_ledger_id: body.source_ledger_id || null\n} }];"
+      },
+      "name": "Compute headroom + urgency",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/vat_threshold_breach_events",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { id: $json.event_id, source_vertical: $json.source_vertical, customer_email: $json.customer_email, customer_legal_name: $json.customer_legal_name, rolling_12m: $json.rolling_12m, projected_30d: $json.projected_30d, headroom_gbp: $json.headroom_gbp, forecast_breach_days: $json.forecast_breach_days, urgency: $json.urgency, source_ledger_id: $json.source_ledger_id, status: 'open' } }}",
+        "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$env.SUPABASE_SERVICE_ROLE_KEY}}" }] }
+      },
+      "name": "Log breach event row",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.CALCOM_API_URL}}/v1/event-types/{{$env.CALCOM_VAT_INTAKE_EVENT_ID}}/book-link",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { name: $json.customer_legal_name, email: $json.customer_email, metadata: { source: 'vat_threshold_breach', urgency: $json.urgency, event_id: $json.event_id } } }}",
+        "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "Authorization", "value": "=Bearer {{$env.CALCOM_API_KEY}}" }] }
+      },
+      "name": "Generate 15-min call booking link",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [880, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.resend.com/emails",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { from: $env.RESEND_FROM_EMAIL, to: $('Compute headroom + urgency').item.json.customer_email, subject: 'You are approaching the £90,000 VAT registration threshold — ' + $('Compute headroom + urgency').item.json.customer_legal_name, html: '<p>Your rolling 12-month taxable turnover is now <strong>£' + $('Compute headroom + urgency').item.json.rolling_12m.toLocaleString() + '</strong>.</p><p>The compulsory VAT registration threshold is <strong>£90,000</strong> (since April 2024). You have <strong>£' + $('Compute headroom + urgency').item.json.headroom_gbp.toLocaleString() + '</strong> of headroom — at the current run-rate, that is approximately <strong>' + ($('Compute headroom + urgency').item.json.forecast_breach_days || 'n/a') + ' days</strong>.</p><p>Once you cross the threshold (rolling 12-month basis), you must register within 30 days. Failure attracts a percentage-based penalty.</p><p>vat.law can run the registration end-to-end — VAT1 filing, MTD-bridging set-up, first quarter prep — for £' + 199 + ' one-off.</p><p><strong>Book a 15-minute call here:</strong> <a href=\"' + $json.book_link + '\">' + $json.book_link + '</a></p>' } }}",
+        "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "Authorization", "value": "=Bearer {{$env.RESEND_API_KEY}}" }] }
+      },
+      "name": "Email customer registration prompt",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1100, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, event_id: $('Compute headroom + urgency').item.json.event_id, urgency: $('Compute headroom + urgency').item.json.urgency, book_link: $json.book_link } }}"
+      },
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1320, 300]
+    }
+  ],
+  "connections": {
+    "Webhook · threshold breach event": { "main": [[{ "node": "Compute headroom + urgency", "type": "main", "index": 0 }]] },
+    "Compute headroom + urgency": { "main": [[{ "node": "Log breach event row", "type": "main", "index": 0 }]] },
+    "Log breach event row": { "main": [[{ "node": "Generate 15-min call booking link", "type": "main", "index": 0 }]] },
+    "Generate 15-min call booking link": { "main": [[{ "node": "Email customer registration prompt", "type": "main", "index": 0 }]] },
+    "Email customer registration prompt": { "main": [[{ "node": "Respond OK", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": ["vat_law", "webhook", "active_on_import", "threshold_breach", "cross_sell"]
+}

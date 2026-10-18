@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>vat.law — Strategy</title>
+<style>
+  :root { --ink: #4338ca; --ink-dark: #312e81; --ink-light: #eef2ff; --border: #a5b4fc; --body: #0f172a; --muted: #475569; --green: #047857; --rose: #be123c; --amber: #d97706; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: var(--body); margin: 0; line-height: 1.55; background: #f8fafc; }
+  .brandbar { background: var(--ink); color: #fff; padding: 28px 36px; }
+  .brandbar h1 { margin: 0; font-size: 24pt; font-weight: 700; }
+  .brandbar .sub { margin-top: 6px; opacity: 0.88; font-size: 11.5pt; }
+  main { max-width: 1080px; margin: 0 auto; padding: 32px 36px 80px; }
+  h2 { color: var(--ink); font-size: 16pt; margin: 36px 0 12px; border-bottom: 2px solid var(--border); padding-bottom: 6px; }
+  h3 { color: var(--ink-dark); font-size: 13pt; margin: 22px 0 8px; }
+  .pillar { background: var(--ink-light); border-left: 4px solid var(--ink); padding: 16px 22px; margin: 14px 0; }
+  table { width: 100%; border-collapse: collapse; background: #fff; font-size: 10.5pt; margin: 10px 0; }
+  th { background: var(--ink); color: #fff; text-align: left; padding: 9px 13px; font-weight: 600; }
+  td { border-bottom: 1px solid #e2e8f0; padding: 8px 13px; vertical-align: top; }
+  .stage { display: inline-block; padding: 3px 9px; border-radius: 10px; font-size: 9pt; font-weight: 600; }
+  .s-research { background: var(--ink-light); color: var(--ink-dark); }
+  .s-react { background: #fef3c7; color: var(--amber); }
+  .s-build { background: #d1fae5; color: var(--green); }
+  .quote { font-style: italic; color: var(--muted); border-left: 3px solid var(--border); padding: 4px 14px; margin: 8px 0; font-size: 10.5pt; }
+  .pull { font-size: 14pt; font-weight: 600; color: var(--ink); margin: 22px 0 8px; }
+</style>
+</head>
+<body>
+
+<div class="brandbar">
+  <h1>vat.law · Strategy</h1>
+  <div class="sub">Vertical #25 of the Supreme Operating System · research → react → build pattern · 18 May 2026</div>
+</div>
+
+<main>
+
+<h2><span class="stage s-research">1 · RESEARCH</span> &nbsp; The UK VAT market today</h2>
+
+<table>
+  <tr><th>Force</th><th>Data (May 2026)</th><th>Source</th></tr>
+  <tr><td>UK VAT-registered businesses</td><td>2.179 million</td><td>data.gov.uk · HMRC VAT registered businesses dataset</td></tr>
+  <tr><td>UK businesses on VAT or PAYE</td><td>2.73 million (March 2025)</td><td>ONS Activity, size and location</td></tr>
+  <tr><td>MTD VAT mandate</td><td>Mandatory for ALL VAT-registered since 1 April 2022 (no opt-out)</td><td>HMRC · Wikipedia MTD timeline</td></tr>
+  <tr><td>Penalty regime change</td><td>1 January 2023: points-based late-submission penalty + escalating late-payment penalty</td><td>HMRC · ACCA Global · PKF Francis Clark</td></tr>
+  <tr><td>April 2025 penalty step-change</td><td>LPP1 raised to 3% day-15 + 3% day-30 · LPP2 daily rate raised to 10% p.a. (was 4%)</td><td>Price Bailey · ACCA Global · HMRC</td></tr>
+  <tr><td>MTD predicted yield (HMRC)</td><td>£4bn+ delivered (June 2025 tax gap report)</td><td>TaxWatchUK · HMRC</td></tr>
+  <tr><td>HMRC's own cost of collecting VAT post-MTD</td><td>+15%</td><td>TaxWatchUK · HMRC research</td></tr>
+  <tr><td>Trader-reported productivity gain</td><td>22% saw improvements · 73% saw no change · 5% deterioration</td><td>HMRC research report 2024</td></tr>
+  <tr><td>VAT registration threshold</td><td>£90,000 turnover (raised from £85,000 April 2024)</td><td>HMRC</td></tr>
+  <tr><td>Competitor pricing for basic MTD</td><td>Sage £14–£33 · Xero £22 · QuickBooks £14–£36 · Avalara MTD file free · #GoFile / 123 Sheets £5–£20</td><td>Vendor public pricing</td></tr>
+</table>
+
+<div class="quote">
+  HMRC's own research: "73% of VAT traders reported no productivity change after MTD implementation; 22% saw improvements." Translation: the MTD mandate did not solve VAT complexity — it just digitised the filing. The complexity problem is unsolved.
+</div>
+
+<h2><span class="stage s-react">2 · REACT</span> &nbsp; Where the gap actually sits</h2>
+
+<p>The MTD-VAT filing market is commoditised. Xero, Sage, QuickBooks and FreeAgent each ship MTD submission at £14–£33/mo. Bridging tools (#GoFile, 123 Sheets, Avalara MTD file) deliver bare-minimum filing for £0–£20. Pricing power has collapsed at this layer.</p>
+
+<p>But VAT complexity sits in a different layer entirely — and there's no AI-native player there at SME pricing:</p>
+
+<table>
+  <tr><th>VAT decision area</th><th>What goes wrong</th><th>Current options</th></tr>
+  <tr><td><strong>Partial exemption</strong></td><td>Exempt + taxable mix · standard / special method · annual adjustment · CGS interaction</td><td>Specialist tax adviser £400–£1,200/hr · or accountant guesses · or business gets it wrong</td></tr>
+  <tr><td><strong>Reverse charge / Construction DRC</strong></td><td>End-user / intermediary status · matrix of CIS-registered sub-contractors · zero-rated supplies · sub-supply chain</td><td>Construction-sector accountants charge £150–£300/hr · sole traders are guessing</td></tr>
+  <tr><td><strong>Margin schemes</strong></td><td>Second-hand goods · TOMS for travel · auctioneers · global accounting · documentation</td><td>Specialist trade-body advice · most accountants don't run these schemes</td></tr>
+  <tr><td><strong>OSS / IOSS · Place of Supply</strong></td><td>B2B vs B2C · digital services · goods · post-Brexit import VAT · postponed VAT accounting · EORI</td><td>Big-4 cross-border tax desks · inaccessible to SMEs at any price</td></tr>
+  <tr><td><strong>Capital Goods Scheme</strong></td><td>10-year adjustment cycle on land/buildings · 5-year on computers · partial-exemption interaction</td><td>Specialist adviser · most accountants don't track this</td></tr>
+  <tr><td><strong>Group VAT</strong></td><td>Group registration · disregards · representative member · joint and several liability</td><td>Larger SMEs only · specialist adviser</td></tr>
+  <tr><td><strong>HMRC enquiry response</strong></td><td>Pre-arranged visit / officer interview / written enquiry · evidence assembly · negotiation · ADR</td><td>Accountant or specialist · £2,000–£15,000 per enquiry</td></tr>
+  <tr><td><strong>Penalty-point regime navigation</strong></td><td>Point accumulation tracking · 24-month expiry math · appeal grounds · reasonable excuse</td><td>No AI-native tool tracks this at the customer level</td></tr>
+</table>
+
+<div class="pillar">
+  <strong>The vat.law play.</strong> AI does the deterministic calculation + scheme-eligibility logic for each of the eight areas above. trained QA reviewer stamps every customer-facing output. The CTA / CIOT / ATT partner network signs anything that crosses into regulated advice on the customer's specific facts. We charge £49–£149/mo where the specialists charge £400–£1,200/hr. We pair into <strong>sole.tax</strong> for the boring MTD plumbing — no need to rebuild it.
+</div>
+
+<h3>Competitive moat</h3>
+
+<table>
+  <tr><th>Competitor</th><th>What they do well</th><th>What we beat them on</th></tr>
+  <tr><td>Xero / Sage / QuickBooks</td><td>Bookkeeping + basic MTD VAT</td><td>We don't compete here — we complement. Customer keeps their bookkeeping software AND adds vat.law.</td></tr>
+  <tr><td>#GoFile / 123 Sheets / Avalara MTD file</td><td>Cheap spreadsheet-to-HMRC filing</td><td>Same — we sit above. Avalara enterprise is the indirect competitor at the high end (we beat on UK-SME price).</td></tr>
+  <tr><td>Specialist VAT consultancies (PwC · Deloitte · BDO · RSM · Mazars)</td><td>Bespoke complex advice</td><td>50–95% cheaper · 24/7 availability · audit-trail by default · partial-exemption methodology in 30 minutes vs 3 weeks.</td></tr>
+  <tr><td>Accountants in practice</td><td>Local trust · 1:1 relationship</td><td>We can be the white-label tool inside the accountant practice (Pro tier + practice multi-seat) — not a competitor.</td></tr>
+</table>
+
+<h2><span class="stage s-build">3 · BUILD</span> &nbsp; The product better than what's out there</h2>
+
+<div class="pull">"Five engines that the £22/mo MTD filers don't have."</div>
+
+<h3>Engine 1 — Partial-Exemption Calculator</h3>
+<p>Standard method + special method + annual adjustment + CGS overlap. Customer uploads sales + purchases (or pulls from Xero/Sage). Engine returns: residual input tax · de minimis test · provisional/annual recovery percentage · methodology memo (template_partial_exemption_methodology.html · trained QA reviewer stamped · CTA partner sign on adoption).</p>
+
+<h3>Engine 2 — Reverse Charge / DRC Matrix</h3>
+<p>Construction-sector sub-contractor matrix · end-user / intermediary determination · CIS overlay · zero-rate / standard-rate / DRC label per invoice. Engine returns invoice-by-invoice labelling + a posting-side summary for the customer's bookkeeping software.</p>
+
+<h3>Engine 3 — Margin Scheme &amp; TOMS Records</h3>
+<p>Second-hand goods · auctioneers · global accounting · TOMS for travel. Engine maintains stock-book + margin calculation + TOMS pre-payment / margin recovery math. Documentation pack auto-generated quarterly.</p>
+
+<h3>Engine 4 — Cross-Border Engine (OSS · IOSS · Place of Supply · Postponed VAT)</h3>
+<p>B2B / B2C classifier · digital services / goods classifier · post-Brexit import flow · OSS One-Stop-Shop registration helper · IOSS for &lt;£135 consignments · postponed VAT accounting reconciliation against the monthly C79 + PIVA report. Engine outputs an OSS return draft + monthly C79 reconciliation + EORI sanity check.</p>
+
+<h3>Engine 5 — HMRC Enquiry Response Studio</h3>
+<p>Customer receives the HMRC notice (officer visit · pre-arranged visit · written enquiry). Studio extracts: subject area · time period · officer name · venue · response deadline. AI pulls the 12-month audit trail from vat.law + (if connected) Xero/Sage/QuickBooks · drafts the response pack · trained QA reviewer stamps · CTA partner signs the cover letter. Standalone £495 product; included once-per-year in Cross-Border tier.</p>
+
+<h2>Regulatory architecture</h2>
+
+<p>UK tax advice is <strong>not</strong> a reserved activity under the Legal Services Act 2007 — anyone can give it. But complex VAT advice carries professional-indemnity exposure under the HMRC AML-supervised practice regime, and the customer's reliance on it can trigger penalty defences (Sch 24 FA 2007 "reasonable care" / "reasonable excuse").</p>
+
+<p>The architectural decision (mirroring immigration.law's OISC partner pattern and dpo.law's named DPO pattern):</p>
+
+<ul>
+  <li><strong>vat.law (the platform)</strong> = technology + deterministic computation + audit trail + trained QA reviewer. Non-regulated.</li>
+  <li><strong>CTA / CIOT / ATT partner adviser network</strong> (3 seed firms) = regulated complex advice on the customer's specific facts. Independent. Sign-off required on any output that crosses into advisory territory.</li>
+  <li><strong>trained QA reviewer</strong> = the human-in-the-loop layer between AI and customer. Every regulator-facing output is QA-stamped.</li>
+  <li><strong>Routing</strong> = geography → capacity → specialism. Commission firewalled from the routing decision (same pattern as immigration.law).</li>
+</ul>
+
+<h2>Cross-vertical revenue mechanics</h2>
+
+<table>
+  <tr><th>Cross-vertical event</th><th>vat.law impact</th></tr>
+  <tr><td>form.law forms a new company</td><td>vat.law watches for £90k threshold breach · auto-prompts VAT registration · cross-sells Essentials</td></tr>
+  <tr><td>sole.tax customer crosses £90k</td><td>Auto-suggest vat.law Essentials · single-click import</td></tr>
+  <tr><td>accounts.law CT600 detects construction SIC</td><td>Cross-sell vat.law Pro for DRC matrix</td></tr>
+  <tr><td>landlord.tax detects commercial-let with option to tax</td><td>Cross-sell vat.law Pro for CGS tracking</td></tr>
+  <tr><td>HMRC enquiry triggers vat.law studio</td><td>Cross-fired Supreme Capital advance financing referral on assessed liability</td></tr>
+  <tr><td>vat.law detects high penalty-point exposure</td><td>Cross-sell Cross-Border tier + flag insurance.law tax-investigation cover</td></tr>
+</table>
+
+<h2>Exit comparables</h2>
+
+<table>
+  <tr><th>Comp</th><th>Status</th><th>Take-out / valuation</th></tr>
+  <tr><td>Avalara</td><td>US · take-private 2022 by Vista</td><td>$8.4B · ~10× ARR</td></tr>
+  <tr><td>Vertex (NASDAQ: VERX)</td><td>US · listed</td><td>~$5–6B mcap · 12–15× ARR</td></tr>
+  <tr><td>Sovos</td><td>US · PE-backed (Hg + TA Associates)</td><td>Estimated $3B+ at last round</td></tr>
+  <tr><td>Xero (NZX: XRO)</td><td>NZ · listed</td><td>~NZ$25B mcap · 11× revenue</td></tr>
+</table>
+
+<p><strong>vat.law target exit:</strong> £40–80m at Y5–7 on £4–6m ARR · 10–15× ARR multiple · strategic acquirer (Sage / Intuit / Avalara / Sovos) or UK-mid-market PE.</p>
+
+<h2>The single highest-leverage decision</h2>
+
+<div class="pillar">
+  <strong>Don't fight Xero.</strong> The launch positioning is "the AI layer on top of your existing bookkeeping software." Direct integration with Xero / Sage / QuickBooks / FreeAgent is mandatory by Week 2. The customer keeps their bookkeeping; vat.law is the AI-native VAT intelligence layer above it. This is the same architectural move Avalara made in the US — and it is what unlocks the accountant-channel white-label motion in Year 2.
+</div>
+
+</main>
+</body>
+</html>

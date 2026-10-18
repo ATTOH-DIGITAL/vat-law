@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>vat.law — Tech Reuse Blueprint</title>
+<style>
+  :root { --ink: #4338ca; --ink-dark: #312e81; --ink-light: #eef2ff; --border: #a5b4fc; --body: #0f172a; --muted: #475569; --green: #047857; --amber: #d97706; --rose: #be123c; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: var(--body); margin: 0; line-height: 1.5; background: #f8fafc; }
+  .brandbar { background: var(--ink); color: #fff; padding: 28px 36px; }
+  .brandbar h1 { margin: 0; font-size: 24pt; font-weight: 700; }
+  .brandbar .sub { margin-top: 6px; opacity: 0.88; font-size: 11.5pt; }
+  main { max-width: 1080px; margin: 0 auto; padding: 32px 36px 80px; }
+  h2 { color: var(--ink); font-size: 16pt; margin: 36px 0 12px; border-bottom: 2px solid var(--border); padding-bottom: 6px; }
+  h3 { color: var(--ink-dark); font-size: 13pt; margin: 22px 0 8px; }
+  .pillar { background: var(--ink-light); border-left: 4px solid var(--ink); padding: 16px 22px; margin: 14px 0; }
+  table { width: 100%; border-collapse: collapse; background: #fff; font-size: 10.5pt; margin: 10px 0; }
+  th { background: var(--ink); color: #fff; text-align: left; padding: 9px 13px; font-weight: 600; }
+  td { border-bottom: 1px solid #e2e8f0; padding: 8px 13px; vertical-align: top; }
+  .pct { font-weight: 700; color: var(--ink); }
+  .new { background: #fef3c7; color: var(--amber); font-weight: 600; padding: 2px 8px; border-radius: 10px; font-size: 9pt; }
+  .snap { background: #d1fae5; color: var(--green); font-weight: 600; padding: 2px 8px; border-radius: 10px; font-size: 9pt; }
+  .cost-table td:last-child { text-align: right; font-family: ui-monospace, "SF Mono", Consolas, monospace; }
+  .total { background: var(--ink); color: #fff; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="brandbar">
+  <h1>vat.law · Tech Reuse Blueprint</h1>
+  <div class="sub">78% Supreme-stack reuse · £5,600 / 4-week launch · the cheapest complex-VAT navigator on the market</div>
+</div>
+
+<main>
+
+<h2>Headline</h2>
+
+<div class="pillar">
+  vat.law is the 25th vertical deployment off the Supreme Operating System. <strong>~78% of the runtime is already written</strong> in sibling verticals (sole.tax, accounts.law, form.law, pension.law, apex_saas, immigration.law). The 22% new build is concentrated in five complex-VAT calculation engines (partial exemption · DRC · margin / TOMS · cross-border · HMRC enquiry) and the CTA partner-network plumbing. End-to-end cost £5,600 · end-to-end time 4 weeks · one founder + one India dev rotation.
+</div>
+
+<h2>Layer-by-layer reuse audit</h2>
+
+<table>
+  <tr><th>Layer</th><th>Source vertical</th><th>Reuse %</th><th>What we lift wholesale · what we adapt</th></tr>
+
+  <tr>
+    <td><strong>MTD HMRC API plumbing</strong></td>
+    <td>sole.tax (Vertical #7)</td>
+    <td class="pct">95%</td>
+    <td><span class="snap">SNAP</span> HMRC OAuth · obligation poll · 9-box submission · digital-link record-keeping · fraud-prevention headers. <em>Adapt:</em> change scope from `mtd-vat-` (already present in sole.tax) and add the complex-VAT calculation pre-filing layer.</td>
+  </tr>
+
+  <tr>
+    <td><strong>Entity / customer model</strong></td>
+    <td>accounts.law (Vertical #14)</td>
+    <td class="pct">60%</td>
+    <td><span class="snap">SNAP</span> FRS 105 entity model · SIC codes · turnover/threshold checker · directors. <em>Adapt:</em> add VAT-specific fields (scheme · group · partial-exemption flag · CGS items).</td>
+  </tr>
+
+  <tr>
+    <td><strong>New-company trigger</strong></td>
+    <td>form.law (Vertical #11)</td>
+    <td class="pct">95%</td>
+    <td><span class="snap">SNAP</span> new-company webhook · turnover-threshold watcher · cross-sell trigger array. <em>Adapt:</em> set the watch threshold to £90k turnover; emit a `vat_law.threshold_breach` event into n8n.</td>
+  </tr>
+
+  <tr>
+    <td><strong>Quarterly cron + alert dedup</strong></td>
+    <td>pension.law (Vertical #19)</td>
+    <td class="pct">70%</td>
+    <td><span class="snap">SNAP</span> 90/60/30/7-day alert pattern · dedup pattern. <em>Adapt:</em> compute penalty-point exposure window (4-point quarterly threshold · 24-month expiry).</td>
+  </tr>
+
+  <tr>
+    <td><strong>Document factory</strong></td>
+    <td>apex_saas (Vertical #1)</td>
+    <td class="pct">85%</td>
+    <td><span class="snap">SNAP</span> Claude API doc pipeline · Handlebars/Puppeteer PDF · Supabase Storage · trained QA review queue · Resend email. <em>Adapt:</em> new templates for partial-exemption methodology, DRC matrix, margin-scheme stock-book, OSS / IOSS returns, HMRC enquiry response pack.</td>
+  </tr>
+
+  <tr>
+    <td><strong>Partner-adviser network</strong></td>
+    <td>immigration.law (Vertical #24)</td>
+    <td class="pct">90%</td>
+    <td><span class="snap">SNAP</span> OISC referrer pattern · routing logic (geography → capacity → specialism) · commission firewall · referral brief builder. <em>Adapt:</em> change "OISC Level 3" to "CTA / CIOT / ATT" terminology and switch reference seed data.</td>
+  </tr>
+
+  <tr>
+    <td><strong>Audit trail</strong></td>
+    <td>gdpr.law (Vertical #10)</td>
+    <td class="pct">50%</td>
+    <td><span class="snap">SNAP</span> append-only audit row pattern · attestation chain. <em>Adapt:</em> add VAT-period boundaries and HMRC-correspondence linking.</td>
+  </tr>
+
+  <tr>
+    <td><strong>Supreme Capital referral</strong></td>
+    <td>supreme_capital</td>
+    <td class="pct">40%</td>
+    <td><span class="snap">SNAP</span> referral webhook + commission-firewalled disclosure. <em>Adapt:</em> wrap around "advance financing for assessed HMRC VAT liabilities" framing.</td>
+  </tr>
+
+  <tr>
+    <td><strong>Partial exemption engine</strong></td>
+    <td>—</td>
+    <td class="pct">0%</td>
+    <td><span class="new">NEW BUILD</span> standard method · special method · de minimis · annual adjustment · CGS overlap.</td>
+  </tr>
+
+  <tr>
+    <td><strong>Reverse charge / DRC matrix</strong></td>
+    <td>—</td>
+    <td class="pct">0%</td>
+    <td><span class="new">NEW BUILD</span> sub-contractor classification · end-user / intermediary determination · CIS overlay · invoice labelling.</td>
+  </tr>
+
+  <tr>
+    <td><strong>Margin scheme + TOMS</strong></td>
+    <td>—</td>
+    <td class="pct">0%</td>
+    <td><span class="new">NEW BUILD</span> stock-book · margin math · TOMS pre-payment · global accounting.</td>
+  </tr>
+
+  <tr>
+    <td><strong>Cross-border (OSS / IOSS / Place of Supply)</strong></td>
+    <td>—</td>
+    <td class="pct">0%</td>
+    <td><span class="new">NEW BUILD</span> B2B/B2C classifier · digital-services / goods classifier · postponed VAT accounting reconciliation · C79 / PIVA · EORI helper.</td>
+  </tr>
+
+  <tr>
+    <td><strong>HMRC enquiry response studio</strong></td>
+    <td>—</td>
+    <td class="pct">0%</td>
+    <td><span class="new">NEW BUILD</span> notice classifier · audit-trail extractor · response-pack drafter · CTA partner sign-off chain.</td>
+  </tr>
+
+  <tr>
+    <td><strong>Penalty-point engine</strong></td>
+    <td>—</td>
+    <td class="pct">0%</td>
+    <td><span class="new">NEW BUILD</span> 4-pt threshold + 24-month expiry math · LPP1/LPP2 exposure model · reasonable-excuse appeal scaffolder.</td>
+  </tr>
+
+  <tr>
+    <td><strong>Xero / Sage / QuickBooks integration</strong></td>
+    <td>—</td>
+    <td class="pct">0%</td>
+    <td><span class="new">NEW BUILD</span> Xero OAuth + invoice/expense pull · Sage Business Cloud API · QuickBooks Online API · FreeAgent API.</td>
+  </tr>
+
+  <tr>
+    <td colspan="2"><strong>Weighted average</strong></td>
+    <td class="pct">~78%</td>
+    <td>The 22% net-new is all complex-VAT calculation logic + bookkeeping-software integrations — exactly the moat.</td>
+  </tr>
+</table>
+
+<h2>Cost build</h2>
+
+<table class="cost-table">
+  <tr><th>Line</th><th>Cost</th></tr>
+  <tr><td>Founder time · 4 weeks · supervisory / strategic (priced at £0 in this OS)</td><td>£0</td></tr>
+  <tr><td>India dev rotation · 4 weeks · one operator at £400/mo loaded · ratio 1.0</td><td>£400</td></tr>
+  <tr><td>Claude API · sonnet-4-6 + opus-4-7 burst for complex-VAT reasoning · estimate</td><td>£800</td></tr>
+  <tr><td>HMRC Developer Hub account · MTD VAT scope · production application · gratis</td><td>£0</td></tr>
+  <tr><td>Xero / Sage / QuickBooks / FreeAgent developer accounts · gratis</td><td>£0</td></tr>
+  <tr><td>Supabase production project · 4-week pre-launch usage</td><td>£200</td></tr>
+  <tr><td>Railway 2-replica prod hosting · 4-week pre-launch</td><td>£150</td></tr>
+  <tr><td>Resend transactional email · 4-week pre-launch</td><td>£50</td></tr>
+  <tr><td>Stripe setup · gratis (transaction fee on revenue)</td><td>£0</td></tr>
+  <tr><td>Penetration test (third-party) · light-touch pre-launch</td><td>£1,800</td></tr>
+  <tr><td>CTA partner network onboarding · 3 firms · contract drafting</td><td>£900</td></tr>
+  <tr><td>Brand asset adaptation (logo + landing page hero · indigo theme)</td><td>£300</td></tr>
+  <tr><td>Domain · vat.law · already held in HoldCo (sunk)</td><td>£0</td></tr>
+  <tr><td>Marketing + cross-vertical launch announcements · in-house</td><td>£0</td></tr>
+  <tr><td>Buffer · 20%</td><td>£1,000</td></tr>
+  <tr class="total"><td>TOTAL</td><td>£5,600</td></tr>
+</table>
+
+<h2>4-week sprint</h2>
+
+<table>
+  <tr><th>Week</th><th>Workstream</th><th>Deliverable</th></tr>
+  <tr><td>1</td><td>Snap + adapt</td><td>Fork sole.tax MTD module · clone form.law new-co trigger · clone pension.law cron · clone immigration.law partner referrer. Stand up Next.js 14 runtime with /api/health · auth callback · dashboard skeleton. Customer + entity + scheme tables in Supabase.</td></tr>
+  <tr><td>2</td><td>Net-new: partial exemption + DRC + margin engines</td><td>Three calculation modules + three Apex SaaS templates + three n8n flows. trained QA reviewer prompts authored. CTA partner contracts signed (3 firms).</td></tr>
+  <tr><td>3</td><td>Net-new: cross-border + HMRC enquiry studio</td><td>OSS / IOSS / postponed VAT engine + HMRC enquiry studio. Xero / Sage / QuickBooks OAuth.</td></tr>
+  <tr><td>4</td><td>Hardening · pen test · launch readiness</td><td>Penetration test (third-party · light-touch) · live HMRC sandbox submission end-to-end · India team training · landing page · LinkedIn launch announcement · cross-vertical event subscriptions wired.</td></tr>
+</table>
+
+<h2>Risks &amp; gating</h2>
+
+<table>
+  <tr><th>Risk</th><th>Impact</th><th>Mitigation</th></tr>
+  <tr><td>HMRC MTD-VAT scope approval delay</td><td>Cannot file in prod</td><td>Use sole.tax's existing production HMRC application as the parent · vat.law inherits the application identity</td></tr>
+  <tr><td>Xero / QuickBooks API rate limits</td><td>Slow bookkeeping pull</td><td>Asynchronous worker · webhook-first design · cache layer</td></tr>
+  <tr><td>CTA partner availability gap</td><td>Routing fails</td><td>Three seed partners · round-robin fallback · capacity-aware routing</td></tr>
+  <tr><td>Competitor undercut (Avalara enters SME pricing)</td><td>Price pressure</td><td>Moat = UK-specific complex-VAT depth · accountant white-label channel · OS cross-sell</td></tr>
+  <tr><td>HMRC penalty-regime change mid-build</td><td>Regulatory drift</td><td>HMRC pre-publishes changes · India team monitors HMRC consultations · monthly OS regulatory-drift agenda</td></tr>
+</table>
+
+<h2>Why this is cheap</h2>
+
+<div class="pillar">
+  The MTD plumbing — OAuth, obligation poll, fraud-prevention headers, digital-link records, 9-box submission — was built once for sole.tax (Vertical #7) and reused in landlord.tax (Vertical #8). vat.law is the third reuse of that same module. The partner-adviser routing logic was built once for immigration.law (Vertical #24, yesterday) and reused here. The doc factory was built once for apex.studio (Vertical #1) and reused 23 times. The marginal cost of adding the 25th vertical is the 22% net-new code — five calculation engines and four bookkeeping-software integrations — at £5,600 over four weeks.
+</div>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,172 @@
+{
+  "name": "vat.law · 04 · HMRC enquiry intake studio",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "vat-enquiry-intake",
+        "responseMode": "responseNode",
+        "options": { "binaryPropertyName": "hmrc_notice_pdf" }
+      },
+      "name": "Webhook · HMRC notice upload",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL}}/storage/v1/object/vat-enquiry-notices/{{$json.body.customer_id}}/{{$now.format('yyyyMMddHHmmss')}}.pdf",
+        "method": "POST",
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "hmrc_notice_pdf",
+        "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$env.SUPABASE_SERVICE_ROLE_KEY}}" }, { "name": "Content-Type", "value": "application/pdf" }] }
+      },
+      "name": "Store notice PDF in vault",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { model: 'claude-opus-4-8', max_tokens: 2000, messages: [ { role: 'user', content: [ { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: $binary.hmrc_notice_pdf.data } }, { type: 'text', text: 'Extract the following fields from this HMRC enquiry/information notice as strict JSON: { hmrc_reference, hmrc_office_name, hmrc_office_address, hmrc_officer_name, hmrc_letter_date, statutory_power_cited, periods_under_enquiry: [], provisional_assessment_gbp, information_request_deadline, response_deadline, requested_documents: [] }. Return ONLY the JSON object — no commentary.' } ] } ] } }}",
+        "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "x-api-key", "value": "={{$env.ANTHROPIC_API_KEY}}" }, { "name": "anthropic-version", "value": "2023-06-01" }] }
+      },
+      "name": "Claude · extract notice fields",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [640, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const raw = $json.content && $json.content[0] && $json.content[0].text ? $json.content[0].text : '{}';\nlet parsed = {};\ntry { parsed = JSON.parse(raw); } catch (e) { parsed = { extraction_error: String(e), raw }; }\nconst body = $('Webhook · HMRC notice upload').item.json.body || {};\nparsed.customer_id = body.customer_id;\nparsed.enquiry_id = 'VAT-ENQ-' + Date.now();\nparsed.notice_storage_key = $('Store notice PDF in vault').item.json.Key || null;\nparsed.assessed_over_5k = (parseFloat(parsed.provisional_assessment_gbp) || 0) > 5000;\nreturn [{ json: parsed }];"
+      },
+      "name": "Parse Claude JSON + flag SC referral",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [860, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/vat_enquiries",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { id: $json.enquiry_id, customer_id: $json.customer_id, hmrc_reference: $json.hmrc_reference, hmrc_officer_name: $json.hmrc_officer_name, hmrc_letter_date: $json.hmrc_letter_date, statutory_power_cited: $json.statutory_power_cited, periods_under_enquiry: $json.periods_under_enquiry, provisional_assessment_gbp: $json.provisional_assessment_gbp, response_deadline: $json.response_deadline, status: 'intake', notice_storage_key: $json.notice_storage_key } }}",
+        "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$env.SUPABASE_SERVICE_ROLE_KEY}}" }] }
+      },
+      "name": "Create enquiry row",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1080, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPABASE_URL}}/rest/v1/rpc/pull_audit_trail_for_periods",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { p_customer_id: $json.customer_id, p_periods: $json.periods_under_enquiry } }}",
+        "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "apikey", "value": "={{$env.SUPABASE_SERVICE_ROLE_KEY}}" }, { "name": "Authorization", "value": "=Bearer {{$env.SUPABASE_SERVICE_ROLE_KEY}}" }] }
+      },
+      "name": "Pull audit trail for periods",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1300, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.RESPONSE_PACK_RENDER_WEBHOOK}}",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { template: 'template_hmrc_enquiry_response.html', enquiry_id: $('Parse Claude JSON + flag SC referral').item.json.enquiry_id, customer_id: $('Parse Claude JSON + flag SC referral').item.json.customer_id, audit_trail: $json, draft_status: 'await_india_qa' } }}",
+        "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "Authorization", "value": "=Bearer {{$env.RESPONSE_PACK_RENDER_API_KEY}}" }] }
+      },
+      "name": "Draft response pack",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1520, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.INDIA_QA_QUEUE_WEBHOOK}}",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { queue: 'vat_enquiry_response_qa', priority: 'high', sla_hours: 24, enquiry_id: $('Parse Claude JSON + flag SC referral').item.json.enquiry_id, customer_id: $('Parse Claude JSON + flag SC referral').item.json.customer_id, response_deadline: $('Parse Claude JSON + flag SC referral').item.json.response_deadline } }}",
+        "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "Authorization", "value": "=Bearer {{$env.INDIA_QA_QUEUE_API_KEY}}" }] }
+      },
+      "name": "Route to India QA queue",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1740, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.resend.com/emails",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { from: $env.RESEND_FROM_EMAIL, to: $env.CTA_PARTNER_SIGNOFF_EMAIL, cc: [$env.SUPREME_TEAM_CC_EMAIL], subject: 'CTA sign-off required · VAT enquiry response · ' + $('Parse Claude JSON + flag SC referral').item.json.enquiry_id, html: '<p>A new HMRC VAT enquiry response pack has been drafted by vat.law and pre-screened by India QA.</p><p><strong>Enquiry ID:</strong> ' + $('Parse Claude JSON + flag SC referral').item.json.enquiry_id + '<br/><strong>HMRC reference:</strong> ' + $('Parse Claude JSON + flag SC referral').item.json.hmrc_reference + '<br/><strong>Statutory power cited:</strong> ' + $('Parse Claude JSON + flag SC referral').item.json.statutory_power_cited + '<br/><strong>Provisional assessment:</strong> £' + $('Parse Claude JSON + flag SC referral').item.json.provisional_assessment_gbp + '<br/><strong>Response deadline:</strong> ' + $('Parse Claude JSON + flag SC referral').item.json.response_deadline + '</p><p>Please review and sign the cover letter in the dashboard.</p>' } }}",
+        "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "Authorization", "value": "=Bearer {{$env.RESEND_API_KEY}}" }] }
+      },
+      "name": "Email CTA partner for sign-off",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1960, 300]
+    },
+    {
+      "parameters": {
+        "conditions": { "boolean": [{ "value1": "={{$('Parse Claude JSON + flag SC referral').item.json.assessed_over_5k}}", "value2": true }] }
+      },
+      "name": "If assessed > £5k",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1960, 480]
+    },
+    {
+      "parameters": {
+        "url": "={{$env.SUPREME_CAPITAL_REFERRAL_WEBHOOK}}",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { source_vertical: 'vat_law', product: 'advance_financing', sub_product: 'hmrc_assessed_liability_advance', enquiry_id: $('Parse Claude JSON + flag SC referral').item.json.enquiry_id, customer_id: $('Parse Claude JSON + flag SC referral').item.json.customer_id, assessed_gbp: $('Parse Claude JSON + flag SC referral').item.json.provisional_assessment_gbp, term_months_range: [12, 36] } }}",
+        "sendHeaders": true, "headerParameters": { "parameters": [{ "name": "Authorization", "value": "=Bearer {{$env.SUPREME_CAPITAL_API_KEY}}" }] }
+      },
+      "name": "Supreme Capital advance referral",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [2180, 480]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, enquiry_id: $('Parse Claude JSON + flag SC referral').item.json.enquiry_id, response_deadline: $('Parse Claude JSON + flag SC referral').item.json.response_deadline, supreme_capital_referral_triggered: $('Parse Claude JSON + flag SC referral').item.json.assessed_over_5k } }}"
+      },
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [2400, 300]
+    }
+  ],
+  "connections": {
+    "Webhook · HMRC notice upload": { "main": [[{ "node": "Store notice PDF in vault", "type": "main", "index": 0 }]] },
+    "Store notice PDF in vault": { "main": [[{ "node": "Claude · extract notice fields", "type": "main", "index": 0 }]] },
+    "Claude · extract notice fields": { "main": [[{ "node": "Parse Claude JSON + flag SC referral", "type": "main", "index": 0 }]] },
+    "Parse Claude JSON + flag SC referral": { "main": [[{ "node": "Create enquiry row", "type": "main", "index": 0 }]] },
+    "Create enquiry row": { "main": [[{ "node": "Pull audit trail for periods", "type": "main", "index": 0 }]] },
+    "Pull audit trail for periods": { "main": [[{ "node": "Draft response pack", "type": "main", "index": 0 }]] },
+    "Draft response pack": { "main": [[{ "node": "Route to India QA queue", "type": "main", "index": 0 }]] },
+    "Route to India QA queue": { "main": [[{ "node": "Email CTA partner for sign-off", "type": "main", "index": 0 }], [{ "node": "If assessed > £5k", "type": "main", "index": 0 }]] },
+    "Email CTA partner for sign-off": { "main": [[{ "node": "Respond OK", "type": "main", "index": 0 }]] },
+    "If assessed > £5k": { "main": [[{ "node": "Supreme Capital advance referral", "type": "main", "index": 0 }], []] },
+    "Supreme Capital advance referral": { "main": [[{ "node": "Respond OK", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": ["vat_law", "webhook", "manual_activate", "enquiry_intake", "cta_signoff", "supreme_capital"]
+}

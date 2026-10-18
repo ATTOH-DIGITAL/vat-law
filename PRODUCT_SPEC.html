@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>vat.law — Product Spec</title>
+<style>
+  :root { --ink: #4338ca; --ink-dark: #312e81; --ink-light: #eef2ff; --border: #a5b4fc; --body: #0f172a; --muted: #475569; --amber: #d97706; --green: #047857; --rose: #be123c; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: var(--body); margin: 0; line-height: 1.5; background: #f8fafc; }
+  .brandbar { background: var(--ink); color: #fff; padding: 28px 36px; }
+  .brandbar h1 { margin: 0; font-size: 24pt; font-weight: 700; }
+  .brandbar .sub { margin-top: 6px; opacity: 0.88; font-size: 11.5pt; }
+  main { max-width: 1080px; margin: 0 auto; padding: 32px 36px 80px; }
+  h2 { color: var(--ink); font-size: 16pt; margin: 32px 0 12px; border-bottom: 2px solid var(--border); padding-bottom: 6px; }
+  h3 { color: var(--ink-dark); font-size: 12.5pt; margin: 18px 0 6px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; font-size: 10.5pt; margin: 8px 0; }
+  th { background: var(--ink); color: #fff; text-align: left; padding: 8px 12px; }
+  td { border-bottom: 1px solid #e2e8f0; padding: 7px 12px; vertical-align: top; }
+  pre { background: #0f172a; color: #e2e8f0; padding: 12px 16px; border-radius: 4px; font-size: 10pt; overflow-x: auto; }
+  code { font-family: ui-monospace, "SF Mono", Consolas, monospace; }
+  .journey { background: var(--ink-light); border-left: 4px solid var(--ink); padding: 12px 18px; margin: 10px 0; font-size: 10.5pt; }
+</style>
+</head>
+<body>
+
+<div class="brandbar">
+  <h1>vat.law · Product Spec</h1>
+  <div class="sub">User journeys · feature spec · DB schema · API surface · 18 May 2026</div>
+</div>
+
+<main>
+
+<h2>1. Primary user journeys</h2>
+
+<div class="journey">
+  <strong>Journey A · Construction sub-contractor on DRC.</strong> Customer signs up to Pro · connects QuickBooks · imports 90-day invoice history · vat.law classifies each invoice as standard / zero / DRC · returns invoice-by-invoice posting suggestions · auto-files Q1 return with reverse-charge fields populated · alerts customer 30/7 days before due date.
+</div>
+
+<div class="journey">
+  <strong>Journey B · Mixed retailer with partial exemption.</strong> Customer signs up to Pro · uploads chart of accounts + 12-month invoice history · vat.law detects exempt outputs (financial services / insurance commission) · runs standard partial-exemption method · returns residual input recovery percentage · generates methodology memo · India QA stamps · CTA partner signs adoption memo · customer presents to HMRC if challenged.
+</div>
+
+<div class="journey">
+  <strong>Journey C · E-commerce business on OSS.</strong> Customer signs up to Cross-Border · connects Xero + Shopify · vat.law detects EU B2C sales · generates OSS quarterly return draft · reconciles UK 9-box · flags &lt;£135 IOSS consignments · pulls C79 from postponed VAT accounting · prepares EORI sanity check.
+</div>
+
+<div class="journey">
+  <strong>Journey D · HMRC enquiry response.</strong> Customer receives a pre-arranged-visit letter from HMRC · uploads PDF to vat.law · studio extracts officer · venue · subject area · response deadline · pulls 12-month audit trail from vat.law + connected bookkeeping software · drafts response pack · India QA stamps · CTA partner signs cover letter · Supreme Capital advance-financing referral fires on assessed liability over £5k.
+</div>
+
+<div class="journey">
+  <strong>Journey E · Penalty-point warning.</strong> Customer accumulates 3 of 4 quarterly points · vat.law dashboard turns amber · India QA emails the customer with the appeal grounds reference (Sch 24 FA 2007 reasonable excuse) · cross-sell Cross-Border tier offered if pattern suggests structural cause.
+</div>
+
+<h2>2. Feature spec by tier</h2>
+
+<table>
+  <tr><th>Feature</th><th>Essentials £19</th><th>Pro £49</th><th>Cross-Border £149</th></tr>
+  <tr><td>MTD VAT submission (9-box)</td><td>✓</td><td>✓</td><td>✓</td></tr>
+  <tr><td>Digital-link record-keeping</td><td>✓</td><td>✓</td><td>✓</td></tr>
+  <tr><td>Error checker</td><td>✓</td><td>✓</td><td>✓</td></tr>
+  <tr><td>Penalty-point exposure tracker</td><td>✓</td><td>✓</td><td>✓</td></tr>
+  <tr><td>90/60/30/7-day alerts</td><td>✓</td><td>✓</td><td>✓</td></tr>
+  <tr><td>Annual review</td><td>✓</td><td>✓</td><td>✓</td></tr>
+  <tr><td>Bookkeeping integration (Xero / Sage / QB / FreeAgent)</td><td>1</td><td>2</td><td>unlimited</td></tr>
+  <tr><td>Partial exemption calculator</td><td>—</td><td>✓</td><td>✓</td></tr>
+  <tr><td>Margin scheme + TOMS</td><td>—</td><td>✓</td><td>✓</td></tr>
+  <tr><td>Reverse charge / DRC matrix</td><td>—</td><td>✓</td><td>✓</td></tr>
+  <tr><td>Capital goods scheme tracker</td><td>—</td><td>✓</td><td>✓</td></tr>
+  <tr><td>Cash-accounting / flat-rate optimisation</td><td>—</td><td>✓</td><td>✓</td></tr>
+  <tr><td>OSS / IOSS</td><td>—</td><td>—</td><td>✓</td></tr>
+  <tr><td>Place-of-supply ruling</td><td>—</td><td>—</td><td>✓</td></tr>
+  <tr><td>Postponed VAT accounting + C79 reconciliation</td><td>—</td><td>—</td><td>✓</td></tr>
+  <tr><td>EORI helper</td><td>—</td><td>—</td><td>✓</td></tr>
+  <tr><td>Group VAT</td><td>—</td><td>—</td><td>✓</td></tr>
+  <tr><td>HMRC enquiry response (1/yr included)</td><td>—</td><td>—</td><td>✓</td></tr>
+  <tr><td>India QA + CTA partner sign-off</td><td>—</td><td>complex outputs</td><td>all advisory output</td></tr>
+  <tr><td>Supreme Capital advance-financing referral</td><td>—</td><td>✓</td><td>✓</td></tr>
+</table>
+
+<h2>3. Database schema (Supabase / Postgres)</h2>
+
+<pre><code>-- vat_customers
+id uuid pk
+legal_name text
+companies_house_number text
+vat_number text
+vrn text                        -- VAT registration number
+scheme text                     -- standard / cash / flat-rate / annual / margin / TOMS
+group_member bool default false
+group_representative_id uuid    -- self-ref
+partial_exemption_flag bool default false
+partial_exemption_method text   -- standard / special
+filing_frequency text           -- monthly / quarterly / annually
+tier text                       -- essentials / pro / cross_border
+stripe_customer_id text
+created_at timestamptz default now()
+updated_at timestamptz default now()
+
+-- vat_returns
+id uuid pk
+customer_id uuid fk
+period_start date
+period_end date
+due_date date
+nine_box jsonb                  -- boxes 1-9 as filed
+status text                     -- draft / qa_review / cta_sign / submitted / accepted / rejected
+mtd_submission_ref text
+mtd_correlation_id text
+filed_at timestamptz
+filed_by_user_id uuid
+audit_trail jsonb
+
+-- vat_invoices
+id uuid pk
+customer_id uuid fk
+source text                     -- xero / sage / quickbooks / freeagent / manual / csv
+external_id text
+issue_date date
+supplier_or_customer text
+net numeric(12,2)
+vat numeric(12,2)
+vat_rate text                   -- standard / reduced / zero / exempt / outside / drc
+drc_classification text         -- end_user / intermediary / standard_drc / null
+margin_scheme bool default false
+place_of_supply text            -- uk / eu_b2c / eu_b2b / row_b2c / row_b2b
+capital_good_id uuid            -- if part of CGS
+
+-- vat_partial_exemption_records
+id uuid pk
+customer_id uuid fk
+period text
+method text
+residual_input_tax numeric(12,2)
+recoverable_percentage numeric(5,2)
+de_minimis_pass bool
+annual_adjustment jsonb
+cta_partner_signed bool default false
+india_qa_signed bool default false
+
+-- vat_drc_assignments  (one row per invoice DRC classification with reasoning)
+id uuid pk
+invoice_id uuid fk
+cis_status text                 -- registered / gross / net
+end_user_flag bool
+intermediary_flag bool
+verdict text                    -- drc / standard / zero
+reasoning text
+india_qa_signed bool default false
+
+-- vat_oss_returns
+id uuid pk
+customer_id uuid fk
+period text
+country_breakdown jsonb         -- per-country net + vat at each member-state rate
+oss_submission_ref text
+status text
+
+-- vat_capital_goods
+id uuid pk
+customer_id uuid fk
+asset_description text
+asset_class text                -- land_buildings / computers / aircraft
+acquisition_date date
+acquisition_cost numeric(12,2)
+acquisition_input_vat numeric(12,2)
+adjustment_years int            -- 10 land/buildings, 5 computers
+yearly_adjustments jsonb        -- one row per adjustment year
+
+-- vat_hmrc_enquiries
+id uuid pk
+customer_id uuid fk
+notice_type text                -- written / officer_visit / pre_arranged / phone
+opened_on date
+officer_name text
+subject_area text
+deadline date
+status text                     -- triaged / pack_drafted / qa_sign / cta_sign / sent / closed
+assessed_liability numeric(12,2)
+supreme_capital_referral_id uuid
+
+-- vat_penalty_points
+id uuid pk
+customer_id uuid fk
+issued_on date
+expires_on date                 -- issued_on + 24 months
+return_period text
+status text                     -- live / expired / appealed / fixed_penalty_triggered
+
+-- vat_alerts
+id uuid pk
+customer_id uuid fk
+alert_type text                 -- return_due_90d / 60d / 30d / 7d / penalty_point_exposure / threshold_breach / lpp_imminent
+trigger_date date
+payload jsonb
+status text                     -- new / sent / acknowledged
+
+-- vat_cta_partners (seed reference)
+id uuid pk
+firm_name text
+qualification text              -- CTA / CIOT / ATT
+member_number text
+primary_email text
+coverage_region text
+specialisms text[]              -- partial_exemption · drc · oss · toms · margin · group · enquiry
+active bool default true
+
+-- vat_cta_referrals
+id uuid pk
+customer_id uuid fk
+partner_id uuid fk
+query_text text
+detected_triggers text[]
+status text                     -- sent / accepted / declined / completed
+created_at timestamptz default now()</code></pre>
+
+<h2>4. API surface</h2>
+
+<table>
+  <tr><th>Path</th><th>Method</th><th>Auth</th><th>Purpose</th></tr>
+  <tr><td>/api/health</td><td>GET</td><td>—</td><td>Railway healthcheck</td></tr>
+  <tr><td>/api/auth/callback</td><td>GET</td><td>—</td><td>Supabase magic-link</td></tr>
+  <tr><td>/api/threshold/check</td><td>POST</td><td>—</td><td>Free 60-second £90k threshold check · unauthenticated funnel</td></tr>
+  <tr><td>/api/returns/submit</td><td>POST</td><td>✓</td><td>Submit 9-box return via MTD · routes to India QA first if Pro/Cross-Border</td></tr>
+  <tr><td>/api/partial-exemption/calculate</td><td>POST</td><td>✓</td><td>Run standard / special method · return methodology memo payload</td></tr>
+  <tr><td>/api/drc/classify-batch</td><td>POST</td><td>✓</td><td>Classify N invoices for DRC · returns invoice-by-invoice verdicts</td></tr>
+  <tr><td>/api/margin/calculate</td><td>POST</td><td>✓</td><td>Margin scheme + TOMS calculation · stock-book update</td></tr>
+  <tr><td>/api/oss/draft</td><td>POST</td><td>✓</td><td>Draft OSS return · country-by-country breakdown</td></tr>
+  <tr><td>/api/cgs/adjustment</td><td>POST</td><td>✓</td><td>Capital goods scheme yearly adjustment</td></tr>
+  <tr><td>/api/enquiry/intake</td><td>POST</td><td>✓</td><td>Upload HMRC notice · studio kicks off</td></tr>
+  <tr><td>/api/integrations/xero/connect</td><td>GET</td><td>✓</td><td>OAuth start</td></tr>
+  <tr><td>/api/integrations/xero/callback</td><td>GET</td><td>✓</td><td>OAuth callback</td></tr>
+  <tr><td>/api/integrations/sage/connect</td><td>GET</td><td>✓</td><td>OAuth start</td></tr>
+  <tr><td>/api/integrations/quickbooks/connect</td><td>GET</td><td>✓</td><td>OAuth start</td></tr>
+  <tr><td>/api/integrations/freeagent/connect</td><td>GET</td><td>✓</td><td>OAuth start</td></tr>
+  <tr><td>/api/cross-fired</td><td>POST</td><td>✓</td><td>Receive cross-vertical events (form.law new co · sole.tax threshold breach · landlord.tax OTT)</td></tr>
+  <tr><td>/api/cta/refer</td><td>POST</td><td>✓</td><td>Route a customer query to a CTA partner</td></tr>
+</table>
+
+<h2>5. Cross-vertical event contracts</h2>
+
+<table>
+  <tr><th>Event</th><th>Source</th><th>vat.law action</th></tr>
+  <tr><td>form_law.company_formed</td><td>form.law</td><td>Watch turnover · prompt VAT registration at £90k</td></tr>
+  <tr><td>sole_tax.turnover_breach</td><td>sole.tax</td><td>Auto-suggest Essentials with 1-click trial</td></tr>
+  <tr><td>accounts_law.sic_construction</td><td>accounts.law</td><td>Cross-sell Pro for DRC matrix</td></tr>
+  <tr><td>landlord_tax.ott_filed</td><td>landlord.tax</td><td>Cross-sell Pro for CGS tracker</td></tr>
+  <tr><td>vat_law.enquiry_assessed</td><td>vat.law (out)</td><td>Cross-fire Supreme Capital advance financing for assessed liability &gt;£5k</td></tr>
+  <tr><td>vat_law.high_penalty_exposure</td><td>vat.law (out)</td><td>Cross-fire insurance.law tax investigation cover</td></tr>
+</table>
+
+<h2>6. Operational metrics</h2>
+
+<table>
+  <tr><th>Metric</th><th>Target (Y1 EOY)</th></tr>
+  <tr><td>Returns filed via MTD</td><td>~7,000 / yr</td></tr>
+  <tr><td>India QA touch-time per Pro return</td><td>≤ 12 minutes</td></tr>
+  <tr><td>CTA partner sign-off latency</td><td>≤ 24 working hours</td></tr>
+  <tr><td>HMRC enquiry response · pack-drafted to customer-ready</td><td>≤ 3 working days</td></tr>
+  <tr><td>Penalty-point false-positive rate (alerts that did not need action)</td><td>≤ 5%</td></tr>
+  <tr><td>Bookkeeping-software integration MAU</td><td>≥ 60% of paid customers</td></tr>
+</table>
+
+</main>
+</body>
+</html>

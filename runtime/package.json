@@ -1,0 +1,45 @@
+{
+  "name": "vat-law",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "test": "node --test tests/*.test.mjs",
+    "verify": "node scripts/verify.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.100.0",
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.39.0",
+    "intuit-oauth": "^4.1.0",
+    "next": "15.5.21",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
+    "resend": "^4.0.0",
+    "server-only": "^0.0.1",
+    "stripe": "^16.0.0",
+    "xero-node": "^9.0.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "19.2.15",
+    "@types/react-dom": "19.2.3",
+    "autoprefixer": "^10.0.1",
+    "eslint": "9.39.4",
+    "eslint-config-next": "16.2.6",
+    "postcss": "^8.5.10",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5"
+  },
+  "overrides": {
+    "postcss": "^8.5.10",
+    "sharp": "^0.35.0",
+    "nanoid": "^3.3.18",
+    "js-yaml": "^4.3.1"
+  }
+}

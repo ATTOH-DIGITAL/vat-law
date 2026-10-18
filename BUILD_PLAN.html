@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>vat.law — Build Plan</title>
+<style>
+  :root { --ink: #4338ca; --ink-dark: #312e81; --ink-light: #eef2ff; --border: #a5b4fc; --body: #0f172a; --muted: #475569; --amber: #d97706; --green: #047857; --rose: #be123c; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: var(--body); margin: 0; line-height: 1.5; background: #f8fafc; }
+  .brandbar { background: var(--ink); color: #fff; padding: 28px 36px; }
+  .brandbar h1 { margin: 0; font-size: 24pt; font-weight: 700; }
+  .brandbar .sub { margin-top: 6px; opacity: 0.88; font-size: 11.5pt; }
+  main { max-width: 1080px; margin: 0 auto; padding: 32px 36px 80px; }
+  h2 { color: var(--ink); font-size: 16pt; margin: 32px 0 12px; border-bottom: 2px solid var(--border); padding-bottom: 6px; }
+  h3 { color: var(--ink-dark); font-size: 12.5pt; margin: 18px 0 6px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; font-size: 10.5pt; margin: 8px 0; }
+  th { background: var(--ink); color: #fff; text-align: left; padding: 8px 12px; }
+  td { border-bottom: 1px solid #e2e8f0; padding: 7px 12px; vertical-align: top; }
+  .week { background: var(--ink-light); border-left: 4px solid var(--ink); padding: 14px 20px; margin: 14px 0; }
+  .week h3 { margin: 0 0 6px; color: var(--ink); font-size: 13pt; }
+  .severity-h { color: var(--rose); font-weight: 600; }
+  .severity-m { color: var(--amber); font-weight: 600; }
+  .severity-l { color: var(--green); font-weight: 600; }
+  .gate { background: #fff; border: 2px solid var(--ink); padding: 12px 16px; margin: 12px 0; }
+  .gate strong { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<div class="brandbar">
+  <h1>vat.law · Build Plan</h1>
+  <div class="sub">4-week sprint · £5,600 · launch readiness gating · risk register · 18 May 2026</div>
+</div>
+
+<main>
+
+<h2>Sprint shape</h2>
+
+<table>
+  <tr><th>Week</th><th>Theme</th><th>Output</th><th>Cost burn</th></tr>
+  <tr><td>1</td><td>Snap + adapt</td><td>Runtime skeleton · MTD plumbing snapped from sole.tax · DB schema · auth · cron · brand</td><td>£1,200</td></tr>
+  <tr><td>2</td><td>Net-new engines I</td><td>Partial-exemption + DRC + margin / TOMS modules + trained QA reviewer prompts + CTA partner contracts</td><td>£1,800</td></tr>
+  <tr><td>3</td><td>Net-new engines II</td><td>Cross-border (OSS/IOSS/place-of-supply) + HMRC enquiry studio + bookkeeping integrations</td><td>£1,800</td></tr>
+  <tr><td>4</td><td>Hardening + launch</td><td>Pen test · live HMRC sandbox · India training · landing page · launch announcement</td><td>£800</td></tr>
+</table>
+
+<h2>Week-by-week</h2>
+
+<div class="week">
+  <h3>Week 1 — Snap + adapt</h3>
+  <p><strong>Mon:</strong> Fork sole.tax MTD module into vat.law/runtime. Stand up Supabase project. Brand the runtime (indigo theme). Set up Stripe products + 3 tiers + annual variants. Create the 11 tables from PRODUCT_SPEC.html DB schema with RLS and audit triggers.</p>
+  <p><strong>Tue–Wed:</strong> Clone form.law new-co webhook · pension.law 90/60/30/7-day cron · immigration.law partner-referrer pattern. Wire the cross-vertical event subscriptions (form.law / sole.tax / accounts.law / landlord.tax).</p>
+  <p><strong>Thu–Fri:</strong> Auth gate (Supabase magic link). Dashboard skeleton with KPI cards (next return due · penalty-point exposure · pending QA). Free-tier threshold checker /api/threshold/check ships to landing page.</p>
+  <p><strong>Week 1 gate:</strong> a logged-in customer can connect their HMRC sandbox account, see their next obligation pulled live, and submit a hard-coded 9-box return through MTD to sandbox.</p>
+</div>
+
+<div class="week">
+  <h3>Week 2 — Net-new engines I (Pro tier core)</h3>
+  <p><strong>Mon–Tue:</strong> Build partial-exemption calculator module. Standard method + de minimis + annual adjustment. Authored CTA-partner methodology memo template. trained QA reviewer prompt library entry "PE-001 Partial Exemption Memo Review."</p>
+  <p><strong>Wed:</strong> Build DRC matrix module. Sub-contractor classification · end-user / intermediary determination · CIS overlay · invoice labelling. /api/drc/classify-batch route.</p>
+  <p><strong>Thu:</strong> Build margin scheme + TOMS module. Stock-book maintenance · margin math · TOMS pre-payment. Templates for second-hand-goods + TOMS quarterly records.</p>
+  <p><strong>Fri:</strong> CTA partner contracts signed (3 seed firms). trained QA review team training session 1 of 2 (the Pro-tier complex-VAT prompts).</p>
+  <p><strong>Week 2 gate:</strong> a Pro-tier customer can run a partial-exemption calculation end-to-end · trained QA reviewer sees the queued review · CTA partner sees the sign-off request · methodology memo PDF lands in Supabase Storage.</p>
+</div>
+
+<div class="week">
+  <h3>Week 3 — Net-new engines II (Cross-Border + enquiry)</h3>
+  <p><strong>Mon:</strong> OSS / IOSS engine. Country-by-country member-state rate table. Place-of-supply classifier (B2B / B2C / digital / goods).</p>
+  <p><strong>Tue:</strong> Postponed VAT accounting reconciliation. C79 / PIVA monthly statement parser. EORI helper.</p>
+  <p><strong>Wed:</strong> HMRC enquiry response studio. Notice classifier · audit-trail extractor · response-pack drafter · CTA partner sign-off chain. /api/enquiry/intake route + n8n flow.</p>
+  <p><strong>Thu:</strong> Capital goods scheme tracker. 10-year (land/buildings) / 5-year (computers) adjustment cycle.</p>
+  <p><strong>Fri:</strong> Bookkeeping integrations. Xero OAuth + invoice pull. Sage Business Cloud API. QuickBooks Online API. FreeAgent API.</p>
+  <p><strong>Week 3 gate:</strong> Cross-Border tier customer can draft an OSS return · upload an HMRC notice PDF · trigger the enquiry studio · trained QA review queues the pack · CTA partner signs.</p>
+</div>
+
+<div class="week">
+  <h3>Week 4 — Hardening · pen test · launch</h3>
+  <p><strong>Mon–Tue:</strong> Light-touch third-party penetration test. Fix anything flagged. Lock CSP. Confirm RLS on every table.</p>
+  <p><strong>Wed:</strong> Live HMRC MTD sandbox full-cycle test (auth · obligation · submit · acknowledge) on a real test VRN. End-to-end audit trail validated.</p>
+  <p><strong>Thu:</strong> India team training session 2 of 2. Landing page live at vat.law. Pricing page live. Sign-up flow live. Stripe live.</p>
+  <p><strong>Fri:</strong> Cross-vertical launch announcements (form.law / sole.tax / accounts.law / landlord.tax in-product banners). LinkedIn launch post. Hand-off to operating mode.</p>
+  <p><strong>Launch gate (Friday):</strong> 10 paid trials · 3 Pro returns submitted via MTD · 0 critical bugs · trained QA reviewer touch-time &lt; 12 minutes per Pro return.</p>
+</div>
+
+<h2>Risk register</h2>
+
+<table>
+  <tr><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th><th>Owner</th></tr>
+  <tr><td>HMRC MTD-VAT scope approval delay</td><td>Low</td><td class="severity-h">High</td><td>Inherit sole.tax production HMRC app identity; vat.law is a new scope on the existing app rather than a new app</td><td>Founder</td></tr>
+  <tr><td>Xero / QuickBooks API rate limits during bulk import</td><td>Med</td><td class="severity-m">Med</td><td>Async worker · webhook-first design · 30-day rolling import only at first sync</td><td>Founder + India</td></tr>
+  <tr><td>CTA partner availability gap (geography or capacity)</td><td>Med</td><td class="severity-h">High</td><td>3 seed firms across London / Manchester / Newcastle · round-robin fallback · capacity-aware routing</td><td>Founder</td></tr>
+  <tr><td>Competitor undercut (Avalara enters SME UK pricing)</td><td>Low</td><td class="severity-m">Med</td><td>Moat = UK complex-VAT depth + OS cross-sell + accountant white-label channel · price is not the moat</td><td>Founder</td></tr>
+  <tr><td>HMRC penalty-regime change mid-build</td><td>Med</td><td class="severity-m">Med</td><td>HMRC consultations are pre-published · India team owns weekly monitoring</td><td>India compliance</td></tr>
+  <tr><td>Partial-exemption methodology challenged by HMRC</td><td>Med</td><td class="severity-h">High</td><td>Every memo is CTA-partner signed before adoption · trained QA reviewer stamped · audit trail preserved</td><td>CTA partner</td></tr>
+  <tr><td>DRC misclassification on construction invoices</td><td>Med</td><td class="severity-h">High</td><td>trained QA reviewer reviews every Pro DRC batch in Week 1 of launch · escalates ambiguous cases to CTA partner</td><td>trained QA reviewer</td></tr>
+  <tr><td>OSS-return error · cross-border</td><td>Low</td><td class="severity-h">High</td><td>Cross-Border tier mandates CTA partner sign-off on every OSS submission · no auto-file</td><td>CTA partner</td></tr>
+  <tr><td>Stripe fraud / chargeback</td><td>Low</td><td class="severity-l">Low</td><td>Stripe Radar · annual pre-pay collected up-front</td><td>Founder</td></tr>
+  <tr><td>India team capacity at launch</td><td>Med</td><td class="severity-m">Med</td><td>Soft launch with paid trials only · scale gradually · India training Week 2 and Week 4</td><td>India lead</td></tr>
+  <tr><td>Brand confusion with vat.law as "tax adviser"</td><td>Med</td><td class="severity-m">Med</td><td>Landing page and dashboard banner make CTA-partner boundary explicit · forbidden-language list enforced</td><td>Founder</td></tr>
+</table>
+
+<h2>Launch readiness gates</h2>
+
+<div class="gate"><strong>Technical.</strong> HMRC MTD live submission · trained QA review queue running · CTA partner sign-off chain live · pen test no critical findings · all 28 runtime files deployed · 21-file snap pack imported.</div>
+
+<div class="gate"><strong>Commercial.</strong> Stripe live with 3 tiers + annual variants · landing page · pricing page · privacy policy · terms · CTA-partner-boundary disclosure · cross-vertical event subscriptions wired.</div>
+
+<div class="gate"><strong>Operational.</strong> trained QA review team trained · CTA partner contracts signed · escalation pathways documented · forbidden-language list distributed · launch announcement scheduled.</div>
+
+<div class="gate"><strong>Financial.</strong> Within £5,600 build budget · Y1 revenue model loaded into ops dashboard · Month-1 KPIs defined (paid trials · MTD submissions · trained QA reviewer touch-time).</div>
+
+<h2>Day 31 (Monday after launch week)</h2>
+
+<p>The OS operating cadence kicks in. vat.law becomes part of the weekly OS operating rhythm: trained QA review queue review · CTA partner sign-off latency check · penalty-point heatmap review · cross-vertical event audit · monthly HMRC consultation drift watch. The build is done; the operation begins.</p>
+
+</main>
+</body>
+</html>

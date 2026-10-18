@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>vat.law — The AI layer above your VAT</title>
+<meta name="description" content="AI-native UK complex-VAT navigator for the bits Xero, Sage and QuickBooks don't handle. Partial exemption, DRC, OSS/IOSS, place-of-supply, HMRC enquiry response. £19 / £49 / £149 a month.">
+<style>
+  :root { --ink: #4338ca; --ink-dark: #312e81; --ink-light: #eef2ff; --border: #a5b4fc; --body: #0f172a; --muted: #475569; --amber: #d97706; --green: #047857; --rose: #be123c; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: var(--body); margin: 0; line-height: 1.55; background: #fff; }
+  .nav { display: flex; align-items: center; padding: 14px 36px; border-bottom: 1px solid #e2e8f0; }
+  .nav .logo { font-weight: 700; color: var(--ink); font-size: 14pt; letter-spacing: -0.01em; }
+  .nav .links { margin-left: auto; display: flex; gap: 22px; font-size: 10.5pt; }
+  .nav .links a { color: var(--muted); text-decoration: none; }
+  .nav .cta { background: var(--ink); color: #fff; padding: 8px 16px; border-radius: 4px; font-weight: 600; }
+  .hero { background: linear-gradient(135deg, var(--ink) 0%, var(--ink-dark) 100%); color: #fff; padding: 80px 36px 90px; text-align: center; }
+  .hero h1 { font-size: 38pt; font-weight: 700; margin: 0 0 18px; letter-spacing: -0.02em; line-height: 1.1; }
+  .hero .lede { max-width: 720px; margin: 0 auto 28px; font-size: 13pt; opacity: 0.92; }
+  .hero .cta-row { display: flex; justify-content: center; gap: 14px; }
+  .btn { display: inline-block; padding: 14px 26px; border-radius: 4px; font-weight: 600; text-decoration: none; font-size: 11pt; }
+  .btn-primary { background: #fff; color: var(--ink); }
+  .btn-secondary { background: transparent; color: #fff; border: 2px solid #fff; }
+  section { padding: 64px 36px; max-width: 1100px; margin: 0 auto; }
+  section h2 { color: var(--ink); font-size: 22pt; font-weight: 700; margin: 0 0 14px; }
+  section .sub { color: var(--muted); font-size: 12pt; margin-bottom: 28px; max-width: 720px; }
+  .urgency { background: #fef3c7; border-left: 4px solid var(--amber); padding: 18px 24px; margin: 24px 0; font-size: 11pt; }
+  .urgency strong { color: var(--amber); }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .card { background: var(--ink-light); border-radius: 6px; padding: 22px; }
+  .card h3 { color: var(--ink); margin: 0 0 8px; font-size: 13pt; }
+  .card p { margin: 0; font-size: 10.5pt; color: var(--body); }
+  .compare { width: 100%; border-collapse: collapse; background: #fff; font-size: 10.5pt; }
+  .compare th { background: var(--ink); color: #fff; text-align: left; padding: 10px 14px; }
+  .compare td { border-bottom: 1px solid #e2e8f0; padding: 9px 14px; }
+  .compare td:nth-child(2), .compare td:nth-child(3), .compare td:nth-child(4) { text-align: center; }
+  .compare .y { color: var(--green); font-weight: 700; }
+  .compare .n { color: var(--rose); font-weight: 700; }
+  .pricing { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .tier { background: #fff; border: 2px solid #e2e8f0; border-radius: 6px; padding: 28px; }
+  .tier.featured { border-color: var(--ink); box-shadow: 0 4px 14px rgba(67,56,202,0.16); }
+  .tier h3 { margin: 0 0 6px; color: var(--ink); font-size: 16pt; }
+  .tier .price { font-size: 26pt; font-weight: 700; color: var(--ink-dark); margin: 8px 0 4px; }
+  .tier .price small { font-size: 10pt; color: var(--muted); font-weight: 400; }
+  .tier ul { list-style: none; padding: 0; margin: 18px 0 0; }
+  .tier ul li { padding: 7px 0; font-size: 10.5pt; border-bottom: 1px solid #f1f5f9; }
+  .tier .btn { width: 100%; text-align: center; margin-top: 20px; background: var(--ink); color: #fff; }
+  .quote { font-size: 18pt; font-weight: 600; color: var(--ink-dark); max-width: 820px; margin: 0 auto; text-align: center; line-height: 1.35; }
+  footer { background: #0f172a; color: #cbd5e1; padding: 40px 36px; font-size: 10pt; text-align: center; }
+  footer a { color: var(--border); }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="logo">vat.law</div>
+  <div class="links">
+    <a href="#why">Why now</a>
+    <a href="#what">What it does</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#" class="cta">Free 60-second check</a>
+  </div>
+</nav>
+
+<section class="hero" style="max-width: none;">
+  <h1>The AI layer above your VAT.</h1>
+  <p class="lede">Xero, Sage and QuickBooks file your 9-box return. They don't navigate partial exemption, DRC, OSS, capital goods scheme, place-of-supply, margin schemes, group VAT, or HMRC enquiries. vat.law does — for £19 to £149 a month, where the specialists charge £400 to £1,200 an hour.</p>
+  <div class="cta-row">
+    <a href="#" class="btn btn-primary">Start free 60-second check</a>
+    <a href="#what" class="btn btn-secondary">See what it does</a>
+  </div>
+</section>
+
+<section id="why">
+  <h2>The HMRC penalty regime got sharper in April 2025.</h2>
+  <p class="sub">Most UK VAT-registered businesses still don't know about it.</p>
+
+  <div class="urgency">
+    <strong>April 2025:</strong> HMRC raised the first late-payment penalty to <strong>3% at day 15 plus a further 3% at day 30</strong>. The second late-payment penalty is now <strong>10% per annum as a daily rate</strong> — more than double the previous rate. Late submission also costs £200 per return once you cross four points on the quarterly threshold.
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3>2.179 million</h3>
+      <p>UK VAT-registered businesses (HMRC). All of them are now on Making Tax Digital. None of them are protected by it.</p>
+    </div>
+    <div class="card">
+      <h3>73% saw no productivity gain</h3>
+      <p>HMRC's own research on the MTD rollout. Digital filing did not solve VAT complexity — it just digitised the filing.</p>
+    </div>
+    <div class="card">
+      <h3>£400 – £1,200 per hour</h3>
+      <p>What a Big-4 VAT specialist charges to navigate the complex bits. vat.law charges £49–£149 a month.</p>
+    </div>
+  </div>
+</section>
+
+<section id="what" style="background: var(--ink-light);">
+  <h2>Five engines the £22-per-month MTD filers don't have.</h2>
+  <p class="sub">Pair vat.law with whatever bookkeeping software you already use. We don't compete with Xero or Sage. We sit above them.</p>
+
+  <div class="grid-3">
+    <div class="card" style="background: #fff;">
+      <h3>1 · Partial-Exemption Calculator</h3>
+      <p>Standard method · special method · de minimis · annual adjustment · capital-goods overlap. Methodology memo CTA-partner-signed.</p>
+    </div>
+    <div class="card" style="background: #fff;">
+      <h3>2 · Reverse Charge / DRC Matrix</h3>
+      <p>Construction sub-contractor matrix · end-user / intermediary determination · CIS overlay · invoice-by-invoice labelling.</p>
+    </div>
+    <div class="card" style="background: #fff;">
+      <h3>3 · Margin Scheme + TOMS</h3>
+      <p>Second-hand goods · auctioneers · global accounting · TOMS for travel · quarterly records auto-generated.</p>
+    </div>
+    <div class="card" style="background: #fff;">
+      <h3>4 · Cross-Border Engine</h3>
+      <p>OSS · IOSS · place-of-supply · postponed VAT accounting · EORI · monthly C79 reconciliation · group VAT.</p>
+    </div>
+    <div class="card" style="background: #fff;">
+      <h3>5 · HMRC Enquiry Response Studio</h3>
+      <p>Upload the HMRC notice. We extract subject, deadline and officer. AI drafts the response pack. trained QA reviewer + CTA partner sign. Supreme Capital advance financing referral on assessed liability.</p>
+    </div>
+    <div class="card" style="background: #fff;">
+      <h3>+ Penalty-Point Tracker</h3>
+      <p>Live exposure model · 24-month expiry math · LPP1/LPP2 exposure · reasonable-excuse appeal scaffolder.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>The honest comparison.</h2>
+  <p class="sub">vat.law is a complement, not a replacement. We pair to whatever bookkeeping software you already run.</p>
+
+  <table class="compare">
+    <tr><th>Feature</th><th>Xero / Sage / QuickBooks</th><th>Bridging tools</th><th>vat.law</th></tr>
+    <tr><td>MTD 9-box submission</td><td class="y">✓</td><td class="y">✓</td><td class="y">✓</td></tr>
+    <tr><td>Digital-link record-keeping</td><td class="y">✓</td><td class="y">✓</td><td class="y">✓</td></tr>
+    <tr><td>Penalty-point tracker</td><td class="n">—</td><td class="n">—</td><td class="y">✓</td></tr>
+    <tr><td>Partial exemption</td><td class="n">—</td><td class="n">—</td><td class="y">✓</td></tr>
+    <tr><td>DRC / reverse-charge matrix</td><td class="n">—</td><td class="n">—</td><td class="y">✓</td></tr>
+    <tr><td>Margin / TOMS schemes</td><td class="n">—</td><td class="n">—</td><td class="y">✓</td></tr>
+    <tr><td>OSS / IOSS / postponed VAT</td><td class="n">—</td><td class="n">—</td><td class="y">✓</td></tr>
+    <tr><td>Capital goods scheme tracker</td><td class="n">—</td><td class="n">—</td><td class="y">✓</td></tr>
+    <tr><td>HMRC enquiry response</td><td class="n">—</td><td class="n">—</td><td class="y">✓</td></tr>
+    <tr><td>trained QA reviewer + CTA partner sign-off</td><td class="n">—</td><td class="n">—</td><td class="y">✓</td></tr>
+  </table>
+</section>
+
+<section style="background: var(--ink); color: #fff;">
+  <p class="quote" style="color: #fff;">"73% of VAT traders reported no productivity gain from MTD."<br><span style="font-size: 11pt; font-weight: 400; opacity: 0.7;">— HMRC research report, 2024</span></p>
+  <p class="quote" style="margin-top: 28px; color: #fff; font-size: 14pt; opacity: 0.92;">Digital filing did not solve VAT. We did.</p>
+</section>
+
+<section id="pricing">
+  <h2>Pricing.</h2>
+  <p class="sub">Monthly. Annual = two months free. Cancel any time. Built on the Supreme Operating System (25 verticals · 8 years of UK SME compliance IP).</p>
+
+  <div class="pricing">
+    <div class="tier">
+      <h3>Essentials</h3>
+      <div class="price">£19<small> / month</small></div>
+      <ul>
+        <li>MTD VAT submission</li>
+        <li>Digital-link record-keeping</li>
+        <li>Error checker</li>
+        <li>Penalty-point exposure tracker</li>
+        <li>90/60/30/7-day alerts</li>
+        <li>Annual review</li>
+        <li>1 bookkeeping integration</li>
+      </ul>
+      <a href="#" class="btn">Start free trial</a>
+    </div>
+
+    <div class="tier featured">
+      <h3>Pro</h3>
+      <div class="price">£49<small> / month</small></div>
+      <ul>
+        <li>Everything in Essentials</li>
+        <li>Partial-exemption calculator</li>
+        <li>Margin scheme + TOMS</li>
+        <li>Reverse-charge / DRC matrix</li>
+        <li>Capital goods scheme tracker</li>
+        <li>Cash-accounting / flat-rate optimisation</li>
+        <li>2 bookkeeping integrations</li>
+        <li>trained QA reviewer on complex outputs</li>
+      </ul>
+      <a href="#" class="btn">Start free trial</a>
+    </div>
+
+    <div class="tier">
+      <h3>Cross-Border</h3>
+      <div class="price">£149<small> / month</small></div>
+      <ul>
+        <li>Everything in Pro</li>
+        <li>OSS / IOSS</li>
+        <li>Place-of-supply ruling</li>
+        <li>Postponed VAT accounting</li>
+        <li>EORI helper · group VAT</li>
+        <li>1 HMRC enquiry response / yr included</li>
+        <li>Unlimited bookkeeping integrations</li>
+        <li>trained QA reviewer + CTA partner sign-off on all advisory output</li>
+      </ul>
+      <a href="#" class="btn">Start free trial</a>
+    </div>
+  </div>
+
+  <p style="text-align: center; margin-top: 32px; color: var(--muted);">HMRC enquiry response · standalone · <strong>£495 per enquiry</strong> · all tiers</p>
+</section>
+
+<footer>
+  <p><strong>vat.law</strong> is Vertical #25 of the Supreme Operating System — an AI-native UK SME compliance platform.</p>
+  <p>vat.law is a technology platform and the deterministic computation layer. Regulated complex VAT advice on your specific facts is delivered by the CTA / CIOT / ATT partner advisers we route to, with trained QA reviewer stamping every regulator-facing output. Commission on partner referrals is firewalled from the routing decision.</p>
+  <p style="margin-top: 16px; opacity: 0.7;">© 2026 vat.law · A Supreme Operating System vertical · <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">CTA partner network</a></p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>vat.law — Runtime Dashboard (Ops View)</title>
+<style>
+  :root { --ink: #4338ca; --ink-dark: #312e81; --ink-light: #eef2ff; --border: #a5b4fc; --body: #0f172a; --muted: #475569; --green: #047857; --amber: #d97706; --rose: #be123c; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: var(--body); margin: 0; line-height: 1.5; background: #f1f5f9; }
+  .brandbar { background: var(--ink); color: #fff; padding: 18px 28px; display: flex; align-items: center; }
+  .brandbar h1 { margin: 0; font-size: 16pt; font-weight: 700; }
+  .brandbar .live { margin-left: auto; font-size: 9pt; padding: 4px 10px; background: #10b981; border-radius: 10px; }
+  .layout { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 56px); }
+  .sidebar { background: #fff; border-right: 1px solid #e2e8f0; padding: 18px 0; }
+  .sidebar a { display: block; padding: 8px 22px; color: var(--body); text-decoration: none; font-size: 10.5pt; }
+  .sidebar a.active { background: var(--ink-light); color: var(--ink); font-weight: 600; border-left: 3px solid var(--ink); padding-left: 19px; }
+  main { padding: 22px 28px; }
+  h2 { color: var(--ink); font-size: 13pt; margin: 14px 0 10px; }
+  .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+  .kpi { background: #fff; padding: 14px 16px; border-left: 4px solid var(--ink); }
+  .kpi .label { font-size: 9.5pt; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .kpi .val { font-size: 20pt; font-weight: 700; color: var(--ink-dark); margin: 4px 0 2px; }
+  .kpi .sub { font-size: 9pt; color: var(--muted); }
+  .row { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; margin-top: 20px; }
+  .panel { background: #fff; padding: 16px 18px; }
+  .panel h3 { color: var(--ink); font-size: 11pt; margin: 0 0 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 10pt; }
+  th { text-align: left; padding: 6px 8px; background: var(--ink-light); color: var(--ink-dark); font-weight: 600; }
+  td { padding: 6px 8px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+  .status-ok { color: var(--green); font-weight: 600; }
+  .status-warn { color: var(--amber); font-weight: 600; }
+  .status-bad { color: var(--rose); font-weight: 600; }
+  .heat { display: inline-block; width: 14px; height: 14px; border-radius: 3px; margin-right: 4px; vertical-align: middle; }
+  .h0 { background: #e2e8f0; } .h1 { background: #c7d2fe; } .h2 { background: #818cf8; } .h3 { background: var(--ink); } .h4 { background: var(--rose); }
+  .alert { background: #fef3c7; border-left: 3px solid var(--amber); padding: 10px 14px; margin: 8px 0; font-size: 10pt; }
+  .alert-r { background: #fee2e2; border-left: 3px solid var(--rose); }
+  .audit { font-family: ui-monospace, "SF Mono", Consolas, monospace; font-size: 9.5pt; line-height: 1.6; background: #0f172a; color: #e2e8f0; padding: 12px 14px; max-height: 220px; overflow-y: auto; }
+  .audit .ts { color: #64748b; } .audit .tag { color: #818cf8; } .audit .ok { color: #34d399; } .audit .warn { color: #fbbf24; } .audit .err { color: #f87171; }
+</style>
+</head>
+<body>
+
+<div class="brandbar">
+  <h1>vat.law · Ops Dashboard</h1>
+  <div class="live">● LIVE · Sample data · 18 May 2026 09:14 UTC</div>
+</div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <a href="#" class="active">Overview</a>
+    <a href="#">Returns due</a>
+    <a href="#">trained QA review queue</a>
+    <a href="#">CTA partner queue</a>
+    <a href="#">Open enquiries</a>
+    <a href="#">Penalty-point heatmap</a>
+    <a href="#">Cross-vertical events</a>
+    <a href="#">HMRC status</a>
+    <a href="#">Bookkeeping integrations</a>
+    <a href="#">Customer churn</a>
+    <a href="#">Audit trail</a>
+  </nav>
+
+  <main>
+
+    <h2>Today's snapshot</h2>
+    <div class="kpi-row">
+      <div class="kpi">
+        <div class="label">Returns due ≤7d</div>
+        <div class="val">187</div>
+        <div class="sub">12 missing data · 4 over de minimis</div>
+      </div>
+      <div class="kpi">
+        <div class="label">trained QA review queue</div>
+        <div class="val">23</div>
+        <div class="sub">avg touch 9.4 min · SLA 12 min</div>
+      </div>
+      <div class="kpi">
+        <div class="label">CTA partner pending sign</div>
+        <div class="val">11</div>
+        <div class="sub">oldest 14h · SLA 24h</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Open HMRC enquiries</div>
+        <div class="val">7</div>
+        <div class="sub">2 SC referrals fired</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Penalty-pt exposure (amber+)</div>
+        <div class="val">38</div>
+        <div class="sub">9 at 3/4 pts · 2 at 4/4</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="panel">
+        <h3>Returns due (next 7 days)</h3>
+        <table>
+          <tr><th>Customer</th><th>VRN</th><th>Period</th><th>Tier</th><th>Status</th><th>Owner</th></tr>
+          <tr><td>Heron Construction Ltd</td><td>3261...</td><td>Q1 2026</td><td>Pro</td><td><span class="status-warn">DRC matrix QA pending</span></td><td>trained QA reviewer · Priya</td></tr>
+          <tr><td>Marlowe Marine Ltd</td><td>4129...</td><td>Q1 2026</td><td>Cross-Border</td><td><span class="status-warn">OSS draft awaiting CTA sign</span></td><td>Westminster CTA Partners</td></tr>
+          <tr><td>The Belmont Group</td><td>5587...</td><td>Q1 2026</td><td>Pro</td><td><span class="status-warn">PE memo awaiting CTA sign</span></td><td>Manchester Tax Advisers</td></tr>
+          <tr><td>Northumbria Antiques</td><td>2188...</td><td>Q1 2026</td><td>Pro</td><td><span class="status-ok">Margin records auto-built</span></td><td>—</td></tr>
+          <tr><td>Penrith Holdings (group)</td><td>9974...</td><td>Q1 2026</td><td>Cross-Border</td><td><span class="status-bad">Group rep member missing</span></td><td>Founder</td></tr>
+          <tr><td>Linton &amp; Co Ltd</td><td>4408...</td><td>Q1 2026</td><td>Essentials</td><td><span class="status-ok">Filed yesterday</span></td><td>—</td></tr>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h3>Penalty-point heatmap (live)</h3>
+        <table>
+          <tr><th>Customer</th><th>Pts</th><th>Heat</th></tr>
+          <tr><td>Heron Construction</td><td>3 / 4</td><td><span class="heat h3"></span></td></tr>
+          <tr><td>Bramley Bakery Ltd</td><td>4 / 4</td><td><span class="heat h4"></span><span class="status-bad">£200 triggered</span></td></tr>
+          <tr><td>Cotswold Foods</td><td>2 / 4</td><td><span class="heat h2"></span></td></tr>
+          <tr><td>The Belmont Group</td><td>2 / 4</td><td><span class="heat h2"></span></td></tr>
+          <tr><td>Penrith Holdings</td><td>1 / 4</td><td><span class="heat h1"></span></td></tr>
+          <tr><td>Marlowe Marine</td><td>0 / 4</td><td><span class="heat h0"></span></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="panel">
+        <h3>Cross-vertical events (last 24h)</h3>
+        <table>
+          <tr><th>Event</th><th>Source</th><th>vat.law action</th><th>State</th></tr>
+          <tr><td>company_formed</td><td>form.law</td><td>Threshold watcher started · 14 new co</td><td><span class="status-ok">received</span></td></tr>
+          <tr><td>turnover_breach</td><td>sole.tax</td><td>VAT registration prompt · 3 sole traders</td><td><span class="status-ok">received</span></td></tr>
+          <tr><td>sic_construction</td><td>accounts.law</td><td>DRC matrix cross-sell · 7 leads</td><td><span class="status-ok">received</span></td></tr>
+          <tr><td>ott_filed</td><td>landlord.tax</td><td>CGS tracker cross-sell · 2 leads</td><td><span class="status-ok">received</span></td></tr>
+          <tr><td>enquiry_assessed</td><td>vat.law (out)</td><td>Supreme Capital advance fired · £8,400 assessed</td><td><span class="status-warn">SC reviewing</span></td></tr>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h3>HMRC + integrations health</h3>
+        <table>
+          <tr><td>HMRC MTD VAT API</td><td class="status-ok">200 OK · 312ms p50</td></tr>
+          <tr><td>HMRC sandbox</td><td class="status-ok">200 OK</td></tr>
+          <tr><td>Xero API</td><td class="status-ok">200 OK · 410ms p50</td></tr>
+          <tr><td>Sage Business Cloud</td><td class="status-warn">429 burst · backoff</td></tr>
+          <tr><td>QuickBooks Online</td><td class="status-ok">200 OK</td></tr>
+          <tr><td>FreeAgent</td><td class="status-ok">200 OK</td></tr>
+          <tr><td>Claude API</td><td class="status-ok">200 OK · 1.2s p50 sonnet</td></tr>
+          <tr><td>Supabase</td><td class="status-ok">200 OK</td></tr>
+          <tr><td>n8n</td><td class="status-ok">98 active flows</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <h2>Active alerts</h2>
+    <div class="alert-r alert"><strong>Bramley Bakery Ltd</strong> hit 4/4 penalty points · £200 fixed penalty triggered Q1 2026 · trained QA reviewer escalated to CTA partner for appeal review (reasonable-excuse Sch 24 FA 2007).</div>
+    <div class="alert"><strong>Penrith Holdings (group)</strong> Q1 return missing group representative-member designation · Founder escalation queued · blocking submission.</div>
+    <div class="alert"><strong>Sage Business Cloud</strong> integration on rate-limit backoff · queue length 14 invoices · 12-min recovery ETA.</div>
+    <div class="alert"><strong>Cross-vertical:</strong> 14 new form.law companies entered the threshold watcher · 4 already approaching £90k cumulative rolling turnover.</div>
+
+    <h2>Live audit tail (last 12 events)</h2>
+    <div class="audit">
+<span class="ts">09:14:02</span> <span class="tag">[mtd]</span> <span class="ok">submitted</span> period=2026-Q1 vrn=4408... receipt=A123-CD22-...
+<span class="ts">09:13:41</span> <span class="tag">[india-qa]</span> <span class="ok">signed</span> ref=PE-2026-Q1-887 customer=The Belmont Group
+<span class="ts">09:13:18</span> <span class="tag">[cta]</span> <span class="warn">pending</span> partner=Manchester Tax Advisers oldest=14h
+<span class="ts">09:12:54</span> <span class="tag">[drc]</span> <span class="ok">classified</span> invoices=42 customer=Heron Construction confidence=0.91
+<span class="ts">09:12:30</span> <span class="tag">[oss]</span> <span class="warn">draft-await-cta</span> customer=Marlowe Marine countries=11
+<span class="ts">09:11:48</span> <span class="tag">[cross-fired]</span> <span class="ok">received</span> event=sic_construction source=accounts.law leads=7
+<span class="ts">09:10:22</span> <span class="tag">[penalty]</span> <span class="err">triggered</span> customer=Bramley Bakery points=4/4 fixed=£200
+<span class="ts">09:09:18</span> <span class="tag">[enquiry]</span> <span class="ok">studio-kicked-off</span> notice_type=pre_arranged_visit deadline=2026-06-30
+<span class="ts">09:08:55</span> <span class="tag">[supreme-cap]</span> <span class="warn">referral-fired</span> assessed=£8400 customer=The Welwyn Group
+<span class="ts">09:07:12</span> <span class="tag">[xero]</span> <span class="ok">synced</span> customer=Linton invoices=18 expenses=22
+<span class="ts">09:06:01</span> <span class="tag">[stripe]</span> <span class="ok">invoice-paid</span> tier=cross_border annual=true £298.00
+<span class="ts">09:04:33</span> <span class="tag">[threshold]</span> <span class="warn">approaching</span> source=form.law watcher=new-co-q1-2026 rolling12=£81,400
+    </div>
+
+  </main>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,159 @@
+{
+  "_meta": {
+    "title": "vat.law — Snap Manifest v1",
+    "description": "Machine-readable registry of all runtime modules, workflows, templates, and infrastructure files. vat.law is Vertical #25 of Supreme Operating System — AI-native UK complex-VAT navigator. Regulated complex-VAT advice on customer specific facts is signed off by CTA / CIOT / ATT partner firms.",
+    "vertical": "vat_law",
+    "version": "1.0.0",
+    "total_files": 19,
+    "stack_reuse_pct": 78,
+    "build_cost_gbp": 5600,
+    "build_weeks": 4,
+    "regulatory_dependency": "CTA / CIOT / ATT (Chartered Institute of Taxation / Association of Taxation Technicians). vat.law is a non-regulated technology platform — MTD VAT submission, deterministic complex-VAT computation, audit trail. Complex-VAT advice on customer specific facts (partial-exemption methodology agreements, TOMS election, capital goods scheme, HMRC enquiry response, voluntary disclosure) is signed off by CTA / CIOT / ATT partner firms (3 seed firms). HMRC MTD VAT API is sanctioned; no portal RPA required."
+  },
+
+  "snap_modules": [
+    { "file": "module_partial_exemption.js", "type": "snap_module", "new_build": true,  "snap_source": null,                          "reuse_pct": 0,  "description": "Pure fn — partial-exemption engine · standard method (residual recovery %) · de minimis test (£625/mo + 50% rule) · annual adjustment (longer-period) · capital goods scheme interplay · methodology memo payload builder · India QA + CTA sign gate" },
+    { "file": "module_drc_matrix.js",        "type": "snap_module", "new_build": true,  "snap_source": null,                          "reuse_pct": 0,  "description": "Pure fn — Domestic Reverse Charge classifier · construction services (CIS-linked) decision tree · end-user / intermediary supplier exclusion test · mobile-phone / computer-chip wholesale routes · 5% disregard · invoice-note builder · batch reclassification for migrating customers" },
+    { "file": "module_margin_toms.js",       "type": "snap_module", "new_build": true,  "snap_source": null,                          "reuse_pct": 0,  "description": "Pure fn — Margin Scheme + TOMS engine · second-hand goods (global accounting + item-by-item) · TOMS for tour operators · margin computation per supply · quarterly record builder · stock book reconciliation · cross-check with Xero / Sage / QB / FreeAgent invoice lines" },
+    { "file": "module_oss_engine.js",        "type": "snap_module", "new_build": true,  "snap_source": null,                          "reuse_pct": 0,  "description": "Pure fn — One Stop Shop (Union / non-Union / IOSS) return engine · cross-border B2C goods + digital services · €10k Union threshold tracker · 27 EU MS VAT rate table · quarterly return draft · evidence-of-customer-location 2-piece test · IOSS €150 consignment route" },
+    { "file": "module_cta_referrer.js",      "type": "snap_module", "new_build": false, "snap_source": "immigration_law/module_oisc_referrer", "reuse_pct": 90, "description": "Pure fn — CTA partner referrer · routes any request that crosses into regulated complex-VAT advice on customer specific facts (partial-exemption methodology agreement, TOMS election, HMRC enquiry response, voluntary disclosure, CGS dispute) to a CTA / CIOT / ATT partner firm (3 seed firms in vat_cta_partners reference table) · firewall log · referral receipt + DocuSign trigger · 90% pattern lift from immigration.law/oisc_referrer" }
+  ],
+
+  "document_templates": [
+    { "file": "template_partial_exemption_memo.html",      "model": "claude-sonnet-4-6",         "india_qa": true, "cta_sign": true,  "tier": "pro",          "description": "Partial-exemption methodology memo · standard method computation · de minimis test result · longer-period adjustment · capital-goods-scheme cross-walk · CTA partner sign block · HMRC-ready format for s.102 special-method application" },
+    { "file": "template_drc_invoice_pack.html",            "model": "claude-haiku-4-5-20251001", "india_qa": true, "cta_sign": false, "tier": "pro",          "description": "Domestic Reverse Charge invoice pack · per-supply DRC classification · invoice-note language ('reverse charge: customer to pay the VAT to HMRC') · end-user exclusion attestation · 5% disregard explainer · batch reclassification cover" },
+    { "file": "template_margin_quarterly_record.html",     "model": "claude-sonnet-4-6",         "india_qa": true, "cta_sign": false, "tier": "pro",          "description": "Margin Scheme / TOMS quarterly record · per-item margin schedule (or global accounting summary) · stock book reconciliation · gross margin reconciliation to P&L · TOMS in-scope vs out-of-scope split · India QA sign block" },
+    { "file": "template_oss_return_draft.html",            "model": "claude-sonnet-4-6",         "india_qa": true, "cta_sign": false, "tier": "cross_border", "description": "OSS / IOSS quarterly return draft · 27 EU MS line items · rate-table cross-check · evidence-of-customer-location attestation · €10k threshold flag · €150 IOSS consignment summary · authorised officer sign block" },
+    { "file": "template_hmrc_enquiry_response.html",       "model": "claude-opus-4-8",           "india_qa": true, "cta_sign": true,  "tier": "enquiry",      "description": "HMRC VAT enquiry response binder · enquiry-notice cross-walk · per-question evidence index · methodology memo cross-references · CTA partner sign block · voluntary-disclosure schedule (where applicable) · £495 one-off product" }
+  ],
+
+  "n8n_workflows": [
+    { "file": "n8n_01_return_due_cron.json",              "auto_active": true,  "trigger": "CRON 0 7 * * *",     "description": "Daily 07:00 UK · scans every customer's VAT stagger · alerts at 30/14/7/3/1 days before the MTD VAT filing deadline · India QA queue · email to finance contact · dedup · annual adjustment trigger in stagger month 12" },
+    { "file": "n8n_02_penalty_point_exposure_cron.json",  "auto_active": true,  "trigger": "CRON 0 8 * * 1",     "description": "Weekly Monday 08:00 UK · April 2025 LPP escalation tracker · scans HMRC penalty-point balance per customer · alerts when within 1 point of the threshold (annual=4, quarterly=4, monthly=5) · LPP 1/2 surcharge calc · alert escalation to CTA partner if 4-point limit hit" },
+    { "file": "n8n_03_threshold_breach_webhook.json",     "auto_active": false, "trigger": "POST /threshold-breach", "description": "Webhook · scans accounting-system rolling-12-month taxable turnover · £90k registration threshold radar · £88k deregistration threshold · 30-day mandatory registration clock starts on breach · India QA + Pro-tier upgrade prompt" },
+    { "file": "n8n_04_enquiry_intake_webhook.json",       "auto_active": false, "trigger": "POST /enquiry-intake",   "description": "Webhook · HMRC enquiry notice intake (£495 one-off product) · OCRs the s.29 / sch.36 notice · classifies enquiry type · spins up enquiry binder workspace · CTA partner assigned via round-robin (or default firm) · 28-day clock countdown" },
+    { "file": "n8n_05_cta_referral_webhook.json",         "auto_active": false, "trigger": "POST /cta-refer",        "description": "Webhook · routes regulated complex-VAT advice request to CTA / CIOT / ATT partner firm · firewall attestation · referral brief · DocuSign trigger for partner + customer + Supreme cc · receipt logged on vat_cta_referrals" }
+  ],
+
+  "db_migrations": [
+    {
+      "file": "sql_001_vat_law_init.sql",
+      "version": 1,
+      "tables": 11,
+      "table_list": [
+        "vat_customers",
+        "vat_returns",
+        "vat_invoices",
+        "vat_partial_exemption_records",
+        "vat_drc_assignments",
+        "vat_oss_returns",
+        "vat_capital_goods",
+        "vat_hmrc_enquiries",
+        "vat_penalty_points",
+        "vat_alerts",
+        "vat_cta_referrals"
+      ],
+      "reference_tables": ["vat_cta_partners"],
+      "audit_tables": ["vat_audit_log"],
+      "rls_enabled": true,
+      "triggers": [
+        "vat_customers_touch",
+        "vat_returns_touch",
+        "vat_invoices_touch",
+        "vat_pe_touch",
+        "vat_drc_touch",
+        "vat_oss_touch",
+        "vat_cgs_touch",
+        "vat_enq_touch",
+        "vat_pp_touch",
+        "vat_ref_touch"
+      ],
+      "seed_data": "vat_cta_partners — 3 CTA / CIOT / ATT partner firms (regulated complex-VAT advice referral layer)"
+    }
+  ],
+
+  "api_routes": [
+    { "path": "/api/health",                              "method": "GET",  "auth": false, "description": "Health probe for Railway healthcheckPath · also verifies HMRC MTD client and Anthropic API client are reachable" },
+    { "path": "/api/auth/callback",                       "method": "GET",  "auth": false, "description": "Supabase magic-link callback" },
+    { "path": "/api/threshold/check",                     "method": "POST", "auth": true,  "description": "Rolling-12-month taxable-turnover check · £90k registration / £88k deregistration · 30-day mandatory registration clock · accounting-system pull (Xero/QB/Sage/FreeAgent)" },
+    { "path": "/api/returns/submit",                      "method": "POST", "auth": true,  "description": "Submit VAT return via HMRC MTD VAT API · India QA + (where partial-exemption / margin / OSS) CTA partner sign gate · fraud-prevention headers · NEVER auto-submits" },
+    { "path": "/api/partial-exemption/calculate",         "method": "POST", "auth": true,  "description": "Partial-exemption calc · standard method + de minimis + longer-period adjustment · methodology memo render (Puppeteer) · CTA partner sign queue" },
+    { "path": "/api/drc/classify-batch",                  "method": "POST", "auth": true,  "description": "Batch DRC classification · supply line ingest · decision-tree apply · end-user attestation prompt · invoice-note language pack" },
+    { "path": "/api/oss/draft",                           "method": "POST", "auth": true,  "description": "OSS / IOSS quarterly return draft · 27 EU MS rate-table cross-check · evidence-of-customer-location · €10k Union threshold · €150 IOSS consignment summary" },
+    { "path": "/api/enquiry/intake",                      "method": "POST", "auth": true,  "description": "HMRC VAT enquiry intake (£495 one-off) · s.29 / sch.36 OCR · CTA partner assignment · 28-day clock · binder workspace spin-up" },
+    { "path": "/api/integrations/xero/connect",           "method": "GET",  "auth": true,  "description": "Xero OAuth2 redirect (then /api/integrations/xero/callback completes the handshake and pulls tax-rate table + invoice lines)" },
+    { "path": "/api/cross-fired",                         "method": "POST", "auth": true,  "description": "Cross-vertical signal sink · form.law new-co VAT-trigger · sole.tax sole-trader threshold breach · accounts.law CT-period match · landlord.tax option-to-tax · insurance.law underwriter VAT-rate ask" }
+  ],
+
+  "railway": [
+    { "file": "railway_Dockerfile",   "description": "Node 20 Alpine + Chromium (Puppeteer PDF) · non-root · multi-stage build · NO Playwright (HMRC MTD has a sanctioned API; no portal RPA required)" },
+    { "file": "railway_railway.json", "description": "2 replicas prod · ON_FAILURE restart · healthcheck /api/health · 30s timeout" },
+    { "file": "railway_.env.example", "description": "Env vars · Supabase · Stripe (3 tiers + annual + £495 enquiry) · Anthropic · Resend · HMRC MTD VAT (OAuth2 + fraud-prevention headers) · Xero / QB / Sage / FreeAgent OAuth · India QA queue · CTA partner webhook · Supreme Capital · cross-vertical webhooks · feature flags" }
+  ],
+
+  "env_vars_required": [
+    "NEXT_PUBLIC_SUPABASE_URL","NEXT_PUBLIC_SUPABASE_ANON_KEY","SUPABASE_URL","SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_STORAGE_BUCKET_RETURNS","SUPABASE_STORAGE_BUCKET_INVOICES","SUPABASE_STORAGE_BUCKET_DOCUMENTS","SUPABASE_STORAGE_BUCKET_ENQUIRY",
+    "ANTHROPIC_API_KEY","CLAUDE_MODEL_DEFAULT","CLAUDE_MODEL_LIGHT","CLAUDE_MODEL_VISION","CLAUDE_MODEL_ENQUIRY",
+    "STRIPE_SECRET_KEY","STRIPE_WEBHOOK_SECRET",
+    "STRIPE_PRICE_ESSENTIALS","STRIPE_PRICE_PRO","STRIPE_PRICE_CROSS_BORDER",
+    "STRIPE_PRICE_ESSENTIALS_ANNUAL","STRIPE_PRICE_PRO_ANNUAL","STRIPE_PRICE_CROSS_BORDER_ANNUAL",
+    "STRIPE_PRICE_HMRC_ENQUIRY",
+    "PDF_RENDERER_URL","PDF_RENDERER_TIMEOUT_MS",
+    "RESEND_API_KEY","RESEND_FROM_EMAIL","RESEND_REPLY_TO","RESEND_ENQUIRY_FROM",
+    "HMRC_VAT_BASE","HMRC_VAT_CLIENT_ID","HMRC_VAT_CLIENT_SECRET","HMRC_VAT_REDIRECT_URI","HMRC_VAT_SCOPE",
+    "HMRC_VAT_SERVER_TOKEN","HMRC_VAT_TEST_USER_ID",
+    "HMRC_FRAUD_VENDOR_PRODUCT_NAME","HMRC_FRAUD_VENDOR_VERSION","HMRC_FRAUD_VENDOR_LICENSE_IDS",
+    "HMRC_FRAUD_VENDOR_PUBLIC_IP","HMRC_FRAUD_GOV_CLIENT_CONNECTION_METHOD","HMRC_FRAUD_GOV_VENDOR_FORWARDED",
+    "XERO_CLIENT_ID","XERO_CLIENT_SECRET","XERO_REDIRECT_URI","XERO_SCOPES",
+    "QB_CLIENT_ID","QB_CLIENT_SECRET","QB_REDIRECT_URI","QB_ENVIRONMENT","QB_SCOPES",
+    "SAGE_CLIENT_ID","SAGE_CLIENT_SECRET","SAGE_REDIRECT_URI","SAGE_SCOPES",
+    "FREEAGENT_CLIENT_ID","FREEAGENT_CLIENT_SECRET","FREEAGENT_REDIRECT_URI",
+    "INDIA_QA_QUEUE_WEBHOOK","INDIA_QA_QUEUE_API_KEY","INDIA_QA_REVIEWER_GROUP",
+    "CTA_PARTNER_WEBHOOK_URL","CTA_PARTNER_WEBHOOK_SECRET","CTA_PARTNER_REFERRAL_API_KEY","CTA_PARTNER_DEFAULT_FIRM_ID",
+    "SUPREME_CAPITAL_WEBHOOK_URL","SUPREME_CAPITAL_API_KEY","SUPREME_CAPITAL_PRODUCT_CODE",
+    "FORM_LAW_WEBHOOK_SECRET","SOLE_TAX_WEBHOOK_SECRET","ACCOUNTS_LAW_WEBHOOK_SECRET",
+    "LANDLORD_TAX_WEBHOOK_SECRET","INSURANCE_LAW_WEBHOOK_SECRET","EMPLOY_LAW_WEBHOOK_SECRET","PENSION_LAW_WEBHOOK_SECRET",
+    "N8N_BASE_URL","N8N_WEBHOOK_SHARED_SECRET",
+    "JWT_SECRET","VAT_RECORDS_ENCRYPTION_KEY","APP_ENCRYPTION_KEY",
+    "FEATURE_INDIA_QA","FEATURE_CTA_PARTNER","FEATURE_OSS","FEATURE_DRC","FEATURE_MARGIN","FEATURE_CGS",
+    "FEATURE_ENQUIRY","FEATURE_PARTIAL_EXEMPTION","FEATURE_THRESHOLD_RADAR","FEATURE_PENALTY_POINTS","FEATURE_CROSSSELL"
+  ],
+
+  "active_on_import": [
+    "n8n_01_return_due_cron.json",
+    "n8n_02_penalty_point_exposure_cron.json"
+  ],
+  "manual_activate": [
+    "n8n_03_threshold_breach_webhook.json",
+    "n8n_04_enquiry_intake_webhook.json",
+    "n8n_05_cta_referral_webhook.json"
+  ],
+
+  "snap_tool_sources": {
+    "sole_tax":         { "reuse_pct": 95, "components": ["HMRC MTD client (OAuth2 + fraud-prevention headers)","Quarterly stagger / return-period scheduler","Accounting-system OAuth (Xero / QB / Sage / FreeAgent)","Threshold radar pattern","Penalty-point exposure tracker"] },
+    "accounts_law":     { "reuse_pct": 60, "components": ["Limited-company customer model","Period-close orchestration","CT-period vs VAT-stagger reconciliation","India QA queue pattern"] },
+    "company_formations": { "reuse_pct": 95, "components": ["New-co webhook → VAT-trigger funnel","Companies House director feed","Zero-CAC cross-sell into VAT registration assessment"] },
+    "pension_law":      { "reuse_pct": 70, "components": ["30/14/7/3/1-day cron pattern","Annual adjustment cadence","Dedup pattern for repeat alerts","Re-enrolment-style 4-year cycle reused for capital-goods-scheme 10-year cycle"] },
+    "apex_saas":        { "reuse_pct": 85, "components": ["Claude AI document factory","Handlebars + Puppeteer PDF","Supabase Storage evidence vault","India QA queue","Resend email"] },
+    "immigration_law":  { "reuse_pct": 90, "components": ["CTA partner referral pattern (mirrors OISC Level 3 partner pattern)","Firewall log","Referral receipt + DocuSign trigger","3-seed-firm reference-table layout","Round-robin partner picker"] },
+    "gdpr_law":         { "reuse_pct": 50, "components": ["Audit trail pattern","Encrypted-at-rest evidence vault","Lawful-basis logging"] },
+    "supreme_capital":  { "reuse_pct": 40, "components": ["FCA AR broker pattern reused for HMRC liability advance financing","Firewalled commission boundary","Referral receipt + DocuSign trigger"] }
+  },
+
+  "regulatory_boundaries": {
+    "vat_law_role": "Technology platform · MTD VAT submission · deterministic complex-VAT computation · audit trail — NOT a regulated tax adviser on customer specific facts",
+    "cta_partner_role": "CTA / CIOT / ATT partners hold regulated complex-VAT advice (partial-exemption methodology agreements, TOMS election, CGS dispute, HMRC enquiry response, voluntary disclosure)",
+    "supreme_capital_role": "FCA AR for advance financing on assessed HMRC liabilities",
+    "hmrc_role": "Tax authority · operates the MTD VAT API · issues registration numbers · enforces returns · imposes LPP 1/2 surcharges and penalty points (April 2025 escalation) · conducts s.29 / sch.36 enquiries · accepts voluntary disclosures",
+    "named_authorised_officer_role": "Customer's own VAT-authorised officer (director / finance lead / their accountant) · remains the legal user of the MTD VAT API · co-signs every return submission",
+    "subscription_revenue": "Essentials £19 · Pro £49 · Cross-Border £149 · HMRC enquiry £495 one-off",
+    "regulator_facing_comms_rule": "Every regulator-facing output (MTD submission, OSS return, HMRC enquiry response, partial-exemption methodology memo) requires CTA partner sign-off. India QA pre-screens. NEVER auto-send.",
+    "forbidden_in_output": [
+      "we are your tax adviser",
+      "guaranteed VAT reclaim",
+      "we guarantee no HMRC penalty",
+      "commission incentivised tax advice"
+    ]
+  }
+}
