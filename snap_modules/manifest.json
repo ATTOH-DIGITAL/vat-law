@@ -1,0 +1,19 @@
+{
+  "repository": "vat-law",
+  "title": "VAT.law — Value Added Tax Act 1994, MTD VAT 9-Box & Partial Exemption OS",
+  "domain": "vat.law",
+  "version": "1.0.0",
+  "sovereign_pillar": 3,
+  "free_tool": {
+    "name": "Rolling 12-Month £90k Threshold Tracker, FRS vs Standard Scheme Optimiser & 9-Box Auditor",
+    "primary_module": "vat_threshold_engine.js",
+    "embeddable": true,
+    "statutory_citations": [
+      "Value Added Tax Act 1994 (Schedule 1 £90,000 Rolling 12-Month Registration Threshold, Schedule 8 Zero-Rating, Schedule 9 Exempt Supplies)",
+      "Value Added Tax Regulations 1995 (Part XIV Partial Exemption De Minimis £625/mo & 50% Test, Flat Rate Scheme 16.5% Limited Cost Trader Rule)",
+      "Making Tax Digital for VAT (Digital Links Mandate & Fraud Prevention Headers)",
+      "Finance Act 2021 Schedule 24 & 26 (Points-Based Late Submission & Late Payment Penalty Regime)"
+    ]
+  },
+  "modules_on_disk": []
+}
