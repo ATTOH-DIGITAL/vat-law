@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * scripts/bot_verify.mjs — Sovereign 5-Pillar & Rule 20 Verification Harness
+ * scripts/bot_verify.mjs — Unified Estate 5-Pillar, Rule 20 & 2026-10-19 Investability Verification Harness
  * Repository: vat-law
  *
  * Enforces:
@@ -9,8 +9,9 @@
  *   3. Pillar 3 (snap_modules/): snap_modules directory & manifest.json present
  *   4. Pillar 4 (supabase_migrations/): SQL migrations present with ENABLE ROW LEVEL SECURITY
  *   5. Pillar 5 (scripts/bot_verify.mjs): self-verifying entrypoint wired
- *   6. Rule 20 Guard: .github/workflows/ci.yml must NOT exist (GitHub Actions decommissioned)
- *   7. Runtime Verification Suite: executes runtime/scripts/verify.mjs if present
+ *   6. Rule 20 Guard: zero .yml/.yaml files in .github/workflows/ (GitHub Actions decommissioned)
+ *   7. 2026-10-19 Investability Pack (Sections A–J) & Cross-Estate Proof in docs/5_INVESTOR_DOSSIER.md
+ *   8. Runtime Verification Suite: executes runtime/scripts/verify.mjs if present
  */
 
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
@@ -34,7 +35,7 @@ function check(label, condition, detail = '') {
   }
 }
 
-console.log(`=== Sovereign 5-Pillar & Rule 20 Verification (${ROOT}) ===`);
+console.log(`=== Sovereign 5-Pillar, Rule 20 & Investability Verification (${ROOT}) ===`);
 
 // Pillar 1: docs/
 const requiredDocs = [
@@ -48,6 +49,36 @@ for (const doc of requiredDocs) {
   const p = join(ROOT, 'docs', doc);
   const ok = existsSync(p) && statSync(p).isFile() && statSync(p).size > 100;
   check(`Pillar 1 (docs/${doc})`, ok, 'missing or empty');
+}
+
+// 2026-10-19 Investability Pack (A–J) & Cross-Estate 5-Point Proof check
+const dossierPath = join(ROOT, 'docs', '5_INVESTOR_DOSSIER.md');
+if (existsSync(dossierPath)) {
+  const dossier = readFileSync(dossierPath, 'utf8');
+  const requiredHeadings = [
+    '## A. Product Identity',
+    '## B. Capability Truth',
+    '## C. Operating-System Inheritance',
+    "## D. Ballon d'Or Top-Five Benchmark",
+    '## E. Market Maturity Classification',
+    '## F. Capital Evidence',
+    '## G. Lead / Lag Score',
+    '## H. Gap-to-Money',
+    '## I. Investability Score (0–100)',
+    '## J. Capital Case',
+  ];
+  const allHeadingsPresent = requiredHeadings.every((h) => dossier.includes(h));
+  check('Investability Pack (Sections A–J in docs/5_INVESTOR_DOSSIER.md)', allHeadingsPresent, 'missing A–J sections');
+
+  const requiredReasoningLines = [
+    'This product is stronger because it can also use:',
+    'This product should not rebuild:',
+    'This product can sell through:',
+    'The current public presentation misses:',
+    'The highest-value next action is:',
+  ];
+  const allReasoningPresent = requiredReasoningLines.every((l) => dossier.includes(l));
+  check('Cross-Estate 5-Point Reasoning Proof (docs/5_INVESTOR_DOSSIER.md)', allReasoningPresent, 'missing mandatory reasoning lines');
 }
 
 // Pillar 2: runtime/
@@ -68,9 +99,12 @@ check('Pillar 4 (supabase_migrations/ with RLS)', migFiles.length > 0 && hasRls,
 // Pillar 5: scripts/bot_verify.mjs
 check('Pillar 5 (scripts/bot_verify.mjs)', existsSync(join(ROOT, 'scripts', 'bot_verify.mjs')));
 
-// Rule 20: No .github/workflows/ci.yml
-const ciYml = join(ROOT, '.github', 'workflows', 'ci.yml');
-check('Rule 20 (.github/workflows/ci.yml absent)', !existsSync(ciYml), 'GitHub Actions workflow must be removed per Rule 20');
+// Rule 20: Zero .yml/.yaml files in .github/workflows/
+const wfDir = join(ROOT, '.github', 'workflows');
+const wfYmls = existsSync(wfDir)
+  ? readdirSync(wfDir).filter((f) => f.endsWith('.yml') || f.endsWith('.yaml'))
+  : [];
+check('Rule 20 (zero .yml/.yaml in .github/workflows/)', wfYmls.length === 0, `found: ${wfYmls.join(', ')}`);
 
 // Execute runtime/scripts/verify.mjs if present
 const runtimeVerify = join(ROOT, 'runtime', 'scripts', 'verify.mjs');
